@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.template.services
+package com.github.shimmernight.ideaplugindev.services
 
-import org.jetbrains.plugins.template.MyBundle
+import com.github.shimmernight.ideaplugindev.MyBundle
 
 class MyApplicationService {
 
