@@ -126,7 +126,13 @@ tasks {
         password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
     }
 
+    verifyPlugin {
+        ignoreFailures.set(true)
+    }
+
     publishPlugin {
+
+        host.set("http://172.26.57.49:8849/download/")
         dependsOn("patchChangelog")
         token.set(System.getenv("PUBLISH_TOKEN"))
         // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3

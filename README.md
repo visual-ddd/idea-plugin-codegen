@@ -1,4 +1,4 @@
-# idea-plugin-dev
+# VisualDDD
 
 ![Build](https://github.com/Shimmernight/idea-plugin-dev/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
@@ -15,8 +15,7 @@
 - [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
 - [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
 
-<!-- Plugin description -->
-## 开发云 - VisualDDD（DDD可视化开发平台）
+<!-- Plugin description -->## 开发云 - VisualDDD（DDD可视化开发平台）
 官网地址：https://ddd.wakedt.cn/login
 
 ### 环境准备
@@ -27,10 +26,11 @@
 
 ### 快速开始
 一、 安装**VisualDDD**(DDD可视化开发平台)插件
-- 打开IDEA设置面板，进入插件页面，点击通过本地安装插件
+1. 设置私服地址（推荐）
 
-- 选择插件下载的安装包
-- 完成安装后，菜单栏上多出一个DDD可视化平台按钮
+- 添加插件私服地址
+> http://172.26.57.49:8849/download/updatePlugins.xml
+- 搜索插件VisualDDD
 
 二、 登录平台账号
 > tips: 同平台账号
@@ -39,7 +39,7 @@
 > 将当前项目同平台应用进行关联绑定
 
 四、 生成代码
- 
+
 - 点击刷新，拉取最新的应用信息、关联业务域和业务场景信息
 - 支持自定义项目信息（不影响平台数据，只对代码生成有效）
   - 唯一标识 -- 默认应用标识，可重写为**项目名称**
