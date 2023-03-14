@@ -1,18 +1,12 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.shimmernight.ideaplugindev</id>
-    <name>IntelliJ Platform Plugin idea-plugin-dev</name>
-    <vendor>shimmernight</vendor>
+    <id>com.wk.paas.visualDDD</id>
+    <name>VisualDDD(DDD可视化开发平台)</name>
+    <vendor>paas</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.shimmernight.ideaplugindev.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.shimmernight.ideaplugindev.services.MyProjectService"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.shimmernight.ideaplugindev.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
+    <depends optional="true" config-file="visual-ddd.xml">com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.vcs</depends>
+    <depends>com.intellij.modules.xml</depends>
+    <depends>com.intellij.modules.xdebugger</depends>
 </idea-plugin>

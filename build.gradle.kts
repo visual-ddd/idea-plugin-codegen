@@ -9,7 +9,7 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.8.0"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.12.0"
+    id("org.jetbrains.intellij") version "1.13.2"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "2.0.0"
     // Gradle Qodana Plugin
@@ -24,7 +24,23 @@ version = properties("pluginVersion")
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    mavenLocal()
 }
+
+dependencies {
+    implementation("com.wd.paas:wd-generator-core:1.0.0-SNAPSHOT"){
+        exclude(group = "org.apache.velocity", module = "velocity")
+        exclude(group = "org.slf4j", module = "slf4j-simple")
+    }
+    implementation("org.jdesktop:beansbinding:1.2.1")
+    implementation("cn.hutool:hutool-all:5.8.11")
+    compileOnly("org.projectlombok:lombok:1.18.26")
+    annotationProcessor("org.projectlombok:lombok:1.18.26")
+}
+
+//configurations.all {
+//    resolutionStrategy.sortArtifacts(ResolutionStrategy.SortOrder.DEPENDENCY_FIRST)
+//}
 
 // Set the JVM language level used to build the project. Use Java 11 for 2020.3+, and Java 17 for 2022.2+.
 kotlin {
