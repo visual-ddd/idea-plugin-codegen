@@ -15,7 +15,8 @@
 - [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
 - [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
 
-<!-- Plugin description -->## 开发云 - VisualDDD（DDD可视化开发平台）
+<!-- Plugin description -->
+## 开发云 - VisualDDD（DDD可视化开发平台）
 官网地址：https://ddd.wakedt.cn/login
 
 ### 环境准备
