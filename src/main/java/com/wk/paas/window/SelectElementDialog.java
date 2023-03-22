@@ -224,6 +224,8 @@ public class SelectElementDialog extends JDialog {
                 textProjectVersion.setEnabled(false);
             }
         });
+//        listBindDomain.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+//        listBindBusiness.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     }
 
     private void onRefresh() {
@@ -277,7 +279,7 @@ public class SelectElementDialog extends JDialog {
         appDSLBuilder.buildAppVersionInfo(applicationVersionDTO);
         String applicationDSL = buildApplicationDSL(appDSLBuilder.getApplicationJson());
 
-//        System.out.println("dsl: \n\n" + applicationDSL);
+        System.out.println("\n\n\n\nappDslJson:\n\n" + applicationDSL);
 
         CodeGenerateService codeGenerateService = new CodeGenerateService(applicationDSL);
         TemplateContext templateContext = new TemplateContext(outPath);

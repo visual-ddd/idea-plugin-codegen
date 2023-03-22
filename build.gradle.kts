@@ -28,7 +28,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.wd.paas:wd-generator-core:1.0.0-SNAPSHOT"){
+    implementation("com.wd.paas:wd-generator-core:1.0.0-SNAPSHOT") {
         exclude(group = "org.apache.velocity", module = "velocity")
         exclude(group = "org.slf4j", module = "slf4j-simple")
     }
