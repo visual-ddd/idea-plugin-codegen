@@ -27,7 +27,6 @@ public class QueryAppVersionService {
             return new ArrayList<>();
         }
         String result = response.body();
-        System.out.println(result);
 
         ResultDTO<List<ApplicationVersionDTO>> resultDTO = JSONUtil.toBean(result, new TypeReference<ResultDTO<List<ApplicationVersionDTO>>>() {}.getType(), true);
         if (!resultDTO.isSuccess()) {
@@ -39,7 +38,6 @@ public class QueryAppVersionService {
     public static void main(String[] args) {
         new LoginService().login("1", "1");
         List<ApplicationVersionDTO> applicationDTOS = new QueryAppVersionService().queryByAppId("20");
-        System.out.println(applicationDTOS);
     }
 
     public ApplicationVersionDTO detailQuery(String appVersionId) {
@@ -52,7 +50,6 @@ public class QueryAppVersionService {
             throw new IllegalStateException(exception.getMessage());
         }
         String result = response.body();
-        System.out.println(result);
 
         ResultDTO<ApplicationVersionDTO> resultDTO = JSONUtil.toBean(result, new TypeReference<ResultDTO<ApplicationVersionDTO>>() {}.getType(), true);
         if (!resultDTO.isSuccess()) {

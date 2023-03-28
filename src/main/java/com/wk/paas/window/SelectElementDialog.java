@@ -23,15 +23,20 @@ import com.wk.paas.window.cell.DomainListCellRenderer;
 import com.wk.paas.window.setting.AppDSLBuilder;
 import com.wk.paas.window.setting.BindAppInfoSettings;
 import com.wk.paas.window.setting.LoginAccountInfoSettings;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.*;
 import java.io.File;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SelectElementDialog extends JDialog {
 
@@ -55,10 +60,14 @@ public class SelectElementDialog extends JDialog {
     private JCheckBox overrideVersionCheckBox;
     private JTextField textProjectIdentity;
     private JCheckBox overrideIdentityCheckBox;
+    private JButton copyDSLButton;
 
-    ApplicationDTO applicationDTO;
-    ApplicationVersionDTO applicationVersionDTO;
+    private ApplicationDTO applicationDTO;
+    private ApplicationVersionDTO applicationVersionDTO;
+    private List<DomainDesignVersionDTO> domainDesignVersionDTOList;
+    private List<BusinessSceneVersionDTO> businessSceneVersionDTOList;
 
+    @SneakyThrows
     private void updateListData() {
 
         LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
@@ -87,29 +96,48 @@ public class SelectElementDialog extends JDialog {
         domainList.clear();
         businessList.clear();
 
-        ApplicationVersionDTO applicationVersionDTOList;
-        try {
-            new LoginService().login(mail, password);
-            applicationVersionDTOList = new QueryAppVersionService().detailQuery(String.valueOf(applicationVersionDTO.getId()));
-        } catch (Exception exception) {
-            Messages.showMessageDialog(exception.getMessage(), "系统错误", Messages.getErrorIcon());
-            return;
-        }
+        AtomicReference<ApplicationVersionDTO> applicationVersionInfo = new AtomicReference<>();
 
-        List<DomainDesignVersionDTO> domainDesignVersionDTOList = Optional.ofNullable(applicationVersionDTOList.getDomainDesignVersionDTOList()).orElse(new ArrayList<>());
-        List<BusinessSceneVersionDTO> businessSceneVersionDTOList = Optional.ofNullable(applicationVersionDTOList.getBusinessSceneVersionDTOList()).orElse(new ArrayList<>());
 
-        for (DomainDesignVersionDTO domainDesignVersionDTO : domainDesignVersionDTOList) {
-            Long domainDesignId = domainDesignVersionDTO.getDomainDesignId();
-            DomainDesignDTO domainDesignDTO = new QueryDomainInfoService().queryByDomainId(domainDesignId);
-            domainDesignVersionDTO.setDomainDesignDTO(domainDesignDTO);
-        }
+        ProgressDialog progressDialog = new ProgressDialog(SelectElementDialog.this, "正在加载平台模型...");
+        Thread thread = new Thread(() -> {
+            try {
+                new LoginService().login(mail, password);
+                progressDialog.setValue(10);
+                progressDialog.setValue(20);
 
-        for (BusinessSceneVersionDTO businessSceneVersionDTO : businessSceneVersionDTOList) {
-            Long businessSceneId = businessSceneVersionDTO.getBusinessSceneId();
-            BusinessSceneDTO businessSceneDTO = new QueryBusinessInfoService().queryByBusinessId(businessSceneId);
-            businessSceneVersionDTO.setBusinessSceneDTO(businessSceneDTO);
-        }
+                applicationVersionInfo.set(new QueryAppVersionService().detailQuery(String.valueOf(this.applicationVersionDTO.getId())));
+                progressDialog.setValue(30);
+                progressDialog.setValue(40);
+
+                domainDesignVersionDTOList = Optional.ofNullable(applicationVersionInfo.get().getDomainDesignVersionDTOList()).orElse(new ArrayList<>());
+                businessSceneVersionDTOList = Optional.ofNullable(applicationVersionInfo.get().getBusinessSceneVersionDTOList()).orElse(new ArrayList<>());
+
+                for (DomainDesignVersionDTO domainDesignVersionDTO : domainDesignVersionDTOList) {
+                    Long domainDesignId = domainDesignVersionDTO.getDomainDesignId();
+                    DomainDesignDTO domainDesignDTO = new QueryDomainInfoService().queryByDomainId(domainDesignId);
+                    domainDesignVersionDTO.setDomainDesignDTO(domainDesignDTO);
+                }
+                progressDialog.setValue(60);
+                progressDialog.setValue(70);
+
+                for (BusinessSceneVersionDTO businessSceneVersionDTO : businessSceneVersionDTOList) {
+                    Long businessSceneId = businessSceneVersionDTO.getBusinessSceneId();
+                    BusinessSceneDTO businessSceneDTO = new QueryBusinessInfoService().queryByBusinessId(businessSceneId);
+                    businessSceneVersionDTO.setBusinessSceneDTO(businessSceneDTO);
+                }
+                progressDialog.setValue(80);
+                progressDialog.setValue(100); // 将进度条的值设置为 100%
+
+            } catch (Exception exception) {
+                Messages.showMessageDialog(exception.getMessage(), "系统错误", Messages.getErrorIcon());
+            } finally {
+                progressDialog.dispose();
+            }
+        });
+        thread.start();
+        progressDialog.setVisible(true);
+        thread.join(1000);
 
         domainList.addAll(domainDesignVersionDTOList);
         businessList.addAll(businessSceneVersionDTOList);
@@ -226,6 +254,10 @@ public class SelectElementDialog extends JDialog {
         });
 //        listBindDomain.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 //        listBindBusiness.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        copyDSLButton.addActionListener(e -> {
+            String appDSLJson = buildAppDSLJson();
+            setClipboardString(appDSLJson);
+        });
     }
 
     private void onRefresh() {
@@ -249,37 +281,25 @@ public class SelectElementDialog extends JDialog {
             return;
         }
 
-        String projectIdentity = textProjectIdentity.getText();
-        if (StringUtils.isBlank(projectIdentity)) {
+        if (StringUtils.isBlank(textProjectIdentity.getText())) {
             Messages.showMessageDialog("项目唯一标识不能为空！", "参数错误", Messages.getWarningIcon());
             return;
         }
 
-        String projectPackageText = textProjectPackage.getText();
-        if (StringUtils.isBlank(projectPackageText)) {
+        if (StringUtils.isBlank(textProjectPackage.getText())) {
             Messages.showMessageDialog("项目包路径不能为空！", "参数错误", Messages.getWarningIcon());
             return;
         }
-        String projectVersionText = textProjectVersion.getText();
-        if (StringUtils.isBlank(projectVersionText)) {
+        if (StringUtils.isBlank(textProjectVersion.getText())) {
             Messages.showMessageDialog("项目版本号不能为空！", "参数错误", Messages.getWarningIcon());
             return;
         }
 
+        String applicationDSL = buildAppDSLJson();
+
         int result = Messages.showCheckboxOkCancelDialog("是否需要生成项目框架?", "选项",
                 "生成项目框架", false, 0, 1, Messages.getInformationIcon());
         boolean isGenProjectFrame = (result == 1);
-
-        applicationDTO.setIdentity(projectIdentity);
-        applicationDTO.setPackageName(projectPackageText);
-        applicationVersionDTO.setCurrentVersion(projectVersionText);
-
-        AppDSLBuilder appDSLBuilder = new AppDSLBuilder();
-        appDSLBuilder.buildAppInfo(applicationDTO);
-        appDSLBuilder.buildAppVersionInfo(applicationVersionDTO);
-        String applicationDSL = buildApplicationDSL(appDSLBuilder.getApplicationJson());
-
-        System.out.println("\n\n\n\nappDslJson:\n\n" + applicationDSL);
 
         CodeGenerateService codeGenerateService = new CodeGenerateService(applicationDSL);
         TemplateContext templateContext = new TemplateContext(outPath);
@@ -295,6 +315,17 @@ public class SelectElementDialog extends JDialog {
         Messages.showMessageDialog("代码生成完成！", "执行成功", Messages.getInformationIcon());
         dispose();
         VirtualFileManager.getInstance().syncRefresh();
+    }
+
+    private String buildAppDSLJson() {
+        applicationDTO.setIdentity(textProjectIdentity.getText());
+        applicationDTO.setPackageName(textProjectPackage.getText());
+        applicationVersionDTO.setCurrentVersion(textProjectVersion.getText());
+
+        AppDSLBuilder appDSLBuilder = new AppDSLBuilder();
+        appDSLBuilder.buildAppInfo(applicationDTO);
+        appDSLBuilder.buildAppVersionInfo(applicationVersionDTO);
+        return buildApplicationDSL(appDSLBuilder.getApplicationJson());
     }
 
     private String buildApplicationDSL(JSONObject applicationJson) {
@@ -356,6 +387,18 @@ public class SelectElementDialog extends JDialog {
         dialog.setTitle("代码生成器");
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
+    }
+
+    /**
+     * 把文本设置到剪贴板（复制）
+     */
+    public static void setClipboardString(String text) {
+        // 获取系统剪贴板
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        // 封装文本内容
+        Transferable trans = new StringSelection(text);
+        // 把文本内容设置到系统剪贴板
+        clipboard.setContents(trans, null);
     }
 
     /**
