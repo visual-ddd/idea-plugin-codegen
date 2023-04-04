@@ -36,6 +36,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -131,7 +132,12 @@ public class SelectElementDialog extends JDialog {
                 progressDialog.setValue(100); // 将进度条的值设置为 100%
 
             } catch (Exception exception) {
-                Messages.showMessageDialog(project, exception.getMessage(), "系统错误", Messages.getErrorIcon());
+                try {
+                    SwingUtilities.invokeAndWait(() ->
+                            Messages.showMessageDialog(project, exception.getMessage(), "系统错误", Messages.getErrorIcon()));
+                } catch (InterruptedException | InvocationTargetException e) {
+                    throw new RuntimeException(e);
+                }
             } finally {
                 progressDialog.dispose();
             }
