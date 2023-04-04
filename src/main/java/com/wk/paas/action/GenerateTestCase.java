@@ -35,7 +35,7 @@ public class GenerateTestCase extends AnAction {
         String sourceClassContent = ReadJavaFile.readFile(sourceClassPath);
 
         String testFilePath = sourceClassPath
-                .replace("main", "test")
+                .replace("src/main/java", "src/test/java")
                 .replace(sourceClassName, sourceClassName + "Test");
 
         File file = new File(testFilePath);
@@ -47,13 +47,9 @@ public class GenerateTestCase extends AnAction {
         // 如果测试类不存在
         ReadJavaFile.createFolder(testFilePath);
 
-        completions(sourceClassContent, testFilePath);
-    }
-
-    public void completions(String sourceContent, String testFilePath) {
         UnintTestEventSourceListener eventSourceListener = new UnintTestEventSourceListener(testFilePath);
         Completion q = Completion.builder()
-                .prompt(prompt(sourceContent))
+                .prompt(prompt(sourceClassContent))
                 .stream(true)
                 .build();
         ChatGptStreamClient.buildInstance().streamCompletions(q, eventSourceListener);

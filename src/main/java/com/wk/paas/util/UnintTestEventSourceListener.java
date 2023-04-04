@@ -66,8 +66,6 @@ public class UnintTestEventSourceListener extends EventSourceListener {
     @SneakyThrows
     @Override
     public void onFailure(@NotNull EventSource eventSource, Throwable t, Response response) {
-        SwingUtilities.invokeAndWait(() ->
-                Messages.showMessageDialog("连接超时，请稍后重试！", "执行失败", Messages.getErrorIcon()));
         if (Objects.isNull(response)) {
             log.error("OpenAI  sse连接异常:{}", t);
             eventSource.cancel();
