@@ -6,13 +6,13 @@
 
 <!-- Plugin description -->
 ## 开发云 - VisualDDD（DDD可视化开发平台）
-官网地址：https://ddd.wakedt.cn/login
+官网地址：https://ddd-test.wakedt.cn/login
 
 ### 环境准备
 一、 配置开发云 host 访问环境
-> Host: 172.31.13.178 ddd.wakedt.cn
+> Host: 172.31.13.178 ddd-test.wakedt.cn
 
-二、 进入DDD可视化开发平台(https://ddd.wakedt.cn/login)创建项目，关联需要的业务域、业务场景
+二、 进入DDD可视化开发平台(https://ddd-test.wakedt.cn/login)创建项目，关联需要的业务域、业务场景
 
 ### 快速开始
 一、 安装**VisualDDD**(DDD可视化开发平台)插件

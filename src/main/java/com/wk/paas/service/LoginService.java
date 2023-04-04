@@ -6,13 +6,12 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.wk.paas.service.dto.ResultDTO;
 
-import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.Map;
 
 public class LoginService {
 
-    public static final String API_LOGIN = "https://ddd.wakedt.cn/api/login";
+    public static final String API_LOGIN = "https://ddd-test.wakedt.cn/api/login";
 
     public Boolean login(String mailText, String passwordText) {
 

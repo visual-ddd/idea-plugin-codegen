@@ -7,16 +7,13 @@ import cn.hutool.json.JSONUtil;
 import com.intellij.openapi.ui.Messages;
 import com.wk.paas.service.dto.ResultDTO;
 import com.wk.paas.service.dto.TeamDTO;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class QueryTeamService {
 
-    public static final String API_TEAM_QUERY = "https://ddd.wakedt.cn/wd/visual/web/team/team-page-query";
+    public static final String API_TEAM_QUERY = "https://ddd-test.wakedt.cn/wd/visual/web/team/team-page-query";
 
     public List<TeamDTO> query() {
         HttpRequest httpRequest = HttpRequest.get(API_TEAM_QUERY);

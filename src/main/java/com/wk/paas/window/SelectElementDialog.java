@@ -32,7 +32,9 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.List;
 import java.util.*;
@@ -69,7 +71,6 @@ public class SelectElementDialog extends JDialog {
 
     @SneakyThrows
     private void updateListData() {
-
         LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
         String mail = instance.getAccount();
         String password = instance.catchPassword();
@@ -130,7 +131,7 @@ public class SelectElementDialog extends JDialog {
                 progressDialog.setValue(100); // 将进度条的值设置为 100%
 
             } catch (Exception exception) {
-                Messages.showMessageDialog(exception.getMessage(), "系统错误", Messages.getErrorIcon());
+                Messages.showMessageDialog(project, exception.getMessage(), "系统错误", Messages.getErrorIcon());
             } finally {
                 progressDialog.dispose();
             }

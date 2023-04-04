@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class QueryAppService {
 
-    public static final String API_LOGIN = "https://ddd.wakedt.cn/wd/visual/web/application/application-page-query?";
+    public static final String API_LOGIN = "https://ddd-test.wakedt.cn/wd/visual/web/application/application-page-query?";
 
     public List<ApplicationDTO> queryByTeamId(String teamId) {
         Map<String, String> heads = new HashMap<>();
