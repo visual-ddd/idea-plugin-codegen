@@ -5,15 +5,13 @@
 package com.wk.paas.window;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.*;
-import com.intellij.ui.treeStructure.*;
-import com.intellij.uiDesigner.core.*;
-import org.jdesktop.swingx.*;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.treeStructure.Tree;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  * @author shimmer

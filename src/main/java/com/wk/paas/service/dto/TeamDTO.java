@@ -1,7 +1,6 @@
 package com.wk.paas.service.dto;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 

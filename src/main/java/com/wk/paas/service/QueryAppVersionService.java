@@ -5,6 +5,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.intellij.openapi.ui.Messages;
+import com.wk.paas.config.PlatformServiceConfig;
 import com.wk.paas.service.dto.ApplicationVersionDTO;
 import com.wk.paas.service.dto.ResultDTO;
 
@@ -13,8 +14,8 @@ import java.util.List;
 
 public class QueryAppVersionService {
 
-    public static final String API_APPLICATION_VERSION_PAGE_QUERY = "https://ddd-test.wakedt.cn/wd/visual/web/application-version/application-version-page-query?";
-    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = "https://ddd-test.wakedt.cn/wd/visual/web/application-version/application-version-detail-query?";
+    public static final String API_APPLICATION_VERSION_PAGE_QUERY = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-page-query?";
+    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-detail-query?";
 
     public List<ApplicationVersionDTO> queryByAppId(String appId) {
         HttpRequest httpRequest = HttpRequest.get(API_APPLICATION_VERSION_PAGE_QUERY.concat("applicationId=").concat(appId));

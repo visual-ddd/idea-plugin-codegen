@@ -1,7 +1,5 @@
 package com.wk.paas.window.cell;
 
-import com.intellij.ui.JBColor;
-import com.wk.paas.service.dto.ApplicationDTO;
 import com.wk.paas.service.dto.ApplicationVersionDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -9,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

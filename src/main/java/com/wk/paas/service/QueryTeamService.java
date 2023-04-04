@@ -5,6 +5,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.intellij.openapi.ui.Messages;
+import com.wk.paas.config.PlatformServiceConfig;
 import com.wk.paas.service.dto.ResultDTO;
 import com.wk.paas.service.dto.TeamDTO;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class QueryTeamService {
 
-    public static final String API_TEAM_QUERY = "https://ddd-test.wakedt.cn/wd/visual/web/team/team-page-query";
+    public static final String API_TEAM_QUERY = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/team/team-page-query";
 
     public List<TeamDTO> query() {
         HttpRequest httpRequest = HttpRequest.get(API_TEAM_QUERY);

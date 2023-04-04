@@ -2,7 +2,6 @@ package com.wk.paas.window.cell;
 
 import com.wk.paas.service.dto.BusinessSceneDTO;
 import com.wk.paas.service.dto.BusinessSceneVersionDTO;
-import com.wk.paas.service.dto.DomainDesignDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

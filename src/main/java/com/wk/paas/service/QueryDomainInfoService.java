@@ -4,12 +4,13 @@ import cn.hutool.core.lang.TypeReference;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
+import com.wk.paas.config.PlatformServiceConfig;
 import com.wk.paas.service.dto.DomainDesignDTO;
 import com.wk.paas.service.dto.ResultDTO;
 
 public class QueryDomainInfoService {
 
-    public static final String API_LOGIN = "https://ddd-test.wakedt.cn/wd/visual/web/domain-design/domain-design-detail-query?";
+    public static final String API_LOGIN = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/domain-design/domain-design-detail-query?";
 
     public DomainDesignDTO queryByDomainId(Long id) {
         HttpRequest httpRequest = HttpRequest.get(API_LOGIN.concat("id=").concat(String.valueOf(id)));

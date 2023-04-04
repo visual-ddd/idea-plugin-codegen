@@ -5,6 +5,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.intellij.openapi.ui.Messages;
+import com.wk.paas.config.PlatformServiceConfig;
 import com.wk.paas.service.dto.ApplicationDTO;
 import com.wk.paas.service.dto.ResultDTO;
 
@@ -15,7 +16,7 @@ import java.util.Map;
 
 public class QueryAppService {
 
-    public static final String API_LOGIN = "https://ddd-test.wakedt.cn/wd/visual/web/application/application-page-query?";
+    public static final String API_LOGIN = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/application/application-page-query?";
 
     public List<ApplicationDTO> queryByTeamId(String teamId) {
         Map<String, String> heads = new HashMap<>();

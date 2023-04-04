@@ -36,7 +36,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -132,12 +131,7 @@ public class SelectElementDialog extends JDialog {
                 progressDialog.setValue(100); // 将进度条的值设置为 100%
 
             } catch (Exception exception) {
-                try {
-                    SwingUtilities.invokeAndWait(() ->
-                            Messages.showMessageDialog(project, exception.getMessage(), "系统错误", Messages.getErrorIcon()));
-                } catch (InterruptedException | InvocationTargetException e) {
-                    throw new RuntimeException(e);
-                }
+                Messages.showMessageDialog(project, exception.getMessage(), "系统错误", Messages.getErrorIcon());
             } finally {
                 progressDialog.dispose();
             }
@@ -306,7 +300,11 @@ public class SelectElementDialog extends JDialog {
 
         int result = Messages.showCheckboxOkCancelDialog("是否需要生成项目框架?", "选项",
                 "生成项目框架", false, 0, 1, Messages.getInformationIcon());
-        boolean isGenProjectFrame = (result == 1);
+        if (result == Messages.CANCEL) {
+            return;
+        }
+        boolean isGenProjectFrame;
+        isGenProjectFrame = result == 1;
 
         CodeGenerateService codeGenerateService = new CodeGenerateService(applicationDSL);
         TemplateContext templateContext = new TemplateContext(outPath);
@@ -336,6 +334,16 @@ public class SelectElementDialog extends JDialog {
     }
 
     private String buildApplicationDSL(JSONObject applicationJson) {
+        String mail;
+        String password;
+
+        LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
+        mail = instance.getAccount();
+        password = instance.catchPassword();
+        if (StringUtils.isBlank(mail) || StringUtils.isBlank(password)) {
+            Messages.showMessageDialog(this, "请先登录", "系统警告", Messages.getWarningIcon());
+        }
+        new LoginService().login(mail, password);
 
         List<DomainDesignVersionDTO> domainDesignVersionDTO = listBindDomain.getSelectedValuesList();
         List<BusinessSceneVersionDTO> businessSceneVersionDTOList = listBindBusiness.getSelectedValuesList();

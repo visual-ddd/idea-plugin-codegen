@@ -7,7 +7,6 @@ import com.intellij.openapi.wm.ToolWindowType;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xmlb.annotations.Attribute;
-import com.wk.paas.window.CodeGenerateTool;
 import com.wk.paas.window.LocalModel;
 import com.wk.paas.window.RemoteModel;
 import org.jetbrains.annotations.NotNull;

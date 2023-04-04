@@ -4,6 +4,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.wk.paas.config.PlatformServiceConfig;
 import com.wk.paas.service.dto.ResultDTO;
 
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
 
 public class LoginService {
 
-    public static final String API_LOGIN = "https://ddd-test.wakedt.cn/api/login";
+    public static final String API_LOGIN = "https://" + PlatformServiceConfig.HOST + "/api/login";
 
     public Boolean login(String mailText, String passwordText) {
 
