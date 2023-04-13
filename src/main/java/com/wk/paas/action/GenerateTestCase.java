@@ -10,12 +10,15 @@ import com.unfbx.chatgpt.entity.completions.Completion;
 import com.wakedata.common.chatgpt.ChatGptStreamClient;
 import com.wk.paas.util.ReadJavaFile;
 import com.wk.paas.util.UnintTestEventSourceListener;
+import com.wk.paas.window.ProgressDialog;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
 public class GenerateTestCase extends AnAction {
 
+    @SneakyThrows
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         VirtualFile sourceFile = e.getData(CommonDataKeys.VIRTUAL_FILE);
@@ -47,12 +50,21 @@ public class GenerateTestCase extends AnAction {
         // 如果测试类不存在
         ReadJavaFile.createFolder(testFilePath);
 
-        UnintTestEventSourceListener eventSourceListener = new UnintTestEventSourceListener(testFilePath);
-        Completion q = Completion.builder()
-                .prompt(prompt(sourceClassContent))
-                .stream(true)
-                .build();
-        ChatGptStreamClient.buildInstance().streamCompletions(q, eventSourceListener);
+        ProgressDialog progressDialog = new ProgressDialog(null, "正在生成测试用例...");
+        Thread thread = new Thread(() -> {
+
+            UnintTestEventSourceListener eventSourceListener = new UnintTestEventSourceListener(testFilePath, progressDialog);
+            Completion q = Completion.builder()
+                    .prompt(prompt(sourceClassContent))
+                    .stream(true)
+                    .build();
+
+            ChatGptStreamClient.buildInstance().streamCompletions(q, eventSourceListener);
+        });
+
+        thread.start();
+        progressDialog.setVisible(true);
+        thread.join(1000);
     }
 
 

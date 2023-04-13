@@ -10,7 +10,7 @@ import com.wk.paas.service.dto.ResultDTO;
 
 public class QueryBusinessInfoService {
 
-    public static final String API_LOGIN = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/business-scene/business-scene-detail-query?";
+    public static final String API_LOGIN = PlatformServiceConfig.HOST + "/wd/visual/web/business-scene/business-scene-detail-query?";
 
     public BusinessSceneDTO queryByBusinessId(Long id) {
         HttpRequest httpRequest = HttpRequest.get(API_LOGIN.concat("id=").concat(String.valueOf(id)));

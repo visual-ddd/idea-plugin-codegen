@@ -14,8 +14,8 @@ import java.util.List;
 
 public class QueryAppVersionService {
 
-    public static final String API_APPLICATION_VERSION_PAGE_QUERY = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-page-query?";
-    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = "https://" + PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-detail-query?";
+    public static final String API_APPLICATION_VERSION_PAGE_QUERY = PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-page-query?";
+    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-detail-query?";
 
     public List<ApplicationVersionDTO> queryByAppId(String appId) {
         HttpRequest httpRequest = HttpRequest.get(API_APPLICATION_VERSION_PAGE_QUERY.concat("applicationId=").concat(appId));

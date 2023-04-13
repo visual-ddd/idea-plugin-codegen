@@ -9,5 +9,4 @@
     <depends>com.intellij.modules.vcs</depends>
     <depends>com.intellij.modules.xml</depends>
     <depends>com.intellij.modules.xdebugger</depends>
-    <depends>com.intellij.java</depends>
 </idea-plugin>
