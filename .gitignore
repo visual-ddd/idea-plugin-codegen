@@ -1,4 +1,31 @@
 .gradle
-.idea
 .qodana
 build
+
+target/
+
+### eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+bin/
+doc/
+.DS_Store
+data/
