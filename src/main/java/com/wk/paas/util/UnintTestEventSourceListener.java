@@ -48,7 +48,8 @@ public class UnintTestEventSourceListener extends EventSourceListener {
             log.info(content);
             log.info("OpenAI返回数据结束了");
 
-            String classContent = content.substring(content.indexOf("package"));
+            int beginIndex = content.indexOf("package");
+            String classContent = beginIndex > -1 ? content.substring(beginIndex) : content;
             ReadJavaFile.writeFile(classContent, testFilePath);
 
             progressDialog.setValue(100);

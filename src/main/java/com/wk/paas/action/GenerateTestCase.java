@@ -56,6 +56,7 @@ public class GenerateTestCase extends AnAction {
             UnintTestEventSourceListener eventSourceListener = new UnintTestEventSourceListener(testFilePath, progressDialog);
             Completion q = Completion.builder()
                     .prompt(prompt(sourceClassContent))
+                    .temperature(0.5)
                     .stream(true)
                     .build();
 
@@ -69,17 +70,16 @@ public class GenerateTestCase extends AnAction {
 
 
     public String prompt(String input) {
-        return "标题： 使用Mockito，JUnit4 生成单元测试\n" +
-                "背景： 为了提高编码质量，减少逻辑编码错误\n" +
-                "限制：  \n" +
-                " 1、使用java 语言\n" +
-                " 2、移除多余的引用import" +
-                " 3、覆盖函数内所有代码的逻辑,覆盖函数的所有场景\n" +
-                " 4、使用testCase输出\n" +
-                " 5、若是在代码中没有出现的属性请不要进行初始化赋值 \n" +
-                " 6、只输出java的代码部分\n" +
-                " 7、包含package包路径" +
-                "\t\n" +
-                "输入数据：\n" + input;
+        return "Title: Generating Unit Tests Using Mockito and JUnit4\n" +
+                "Background: To improve coding quality and reduce logical coding errors.\n" +
+                "Constraints:\n" +
+                "- optimizing imports.\n" +
+                "- Cover all logical code and scenarios within functions.\n" +
+                "- Cover every line of code within a method.\n" +
+                "- Use testCase output.\n" +
+                "- Do not initialize or assign values to attributes not in the code.\n" +
+                "- Only output Java code.\n" +
+                "- Include package path.\n" +
+                "Input data:" + input;
     }
 }
