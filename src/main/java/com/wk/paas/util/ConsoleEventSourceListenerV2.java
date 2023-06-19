@@ -1,11 +1,12 @@
 package com.wk.paas.util;
 
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFileManager;
+import com.unfbx.chatgpt.entity.chat.ChatCompletionResponse;
 import com.wk.paas.window.ProgressDialog;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
@@ -17,21 +18,21 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
- * 单元测试相关
+ * 描述： sse
  *
- * @Author focus
- * @Date 2023/3/30
+ * @author https:www.unfbx.com
+ * 2023-06-15
  */
-@Deprecated(since = "0.4.1")
 @Slf4j
-public class UnintTestEventSourceListener extends EventSourceListener {
+public class ConsoleEventSourceListenerV2 extends EventSourceListener {
+    @Getter
+    StringBuilder result = new StringBuilder();
 
-    private final StringBuilder result = new StringBuilder();
     private final String testFilePath;
 
     private final ProgressDialog progressDialog;
 
-    public UnintTestEventSourceListener(String testFilePath, ProgressDialog progressDialog) {
+    public ConsoleEventSourceListenerV2(String testFilePath, ProgressDialog progressDialog) {
         this.testFilePath = testFilePath;
         this.progressDialog = progressDialog;
     }
@@ -41,13 +42,11 @@ public class UnintTestEventSourceListener extends EventSourceListener {
         log.info("OpenAI建立sse连接...");
     }
 
-    @SneakyThrows
     @Override
-    public void onEvent(@NotNull EventSource eventSource, String id, String type, String data) {
+    public void onEvent(@NotNull EventSource eventSource, String id, String type, @NotNull String data) {
+        log.info("OpenAI返回数据：{}", data);
         if (data.equals("[DONE]")) {
             String content = result.toString();
-            log.info(content);
-            log.info("OpenAI返回数据结束了");
 
             int beginIndex = content.indexOf("package");
             String classContent = beginIndex > -1 ? content.substring(beginIndex) : content;
@@ -63,26 +62,28 @@ public class UnintTestEventSourceListener extends EventSourceListener {
                 Messages.showMessageDialog("成功生成测试用例！", "执行成功", Messages.getInformationIcon());
             });
 
+            log.info("OpenAI返回数据结束了");
             return;
         }
-
-        JSONObject json = JSONUtil.parseObj(data);
-        json.getJSONArray("choices").forEach(e -> result.append(JSONUtil.parseObj(e).get("text")));
+        ChatCompletionResponse chatCompletionResponse = JSONUtil.toBean(data, ChatCompletionResponse.class);
+        String content = chatCompletionResponse.getChoices().get(0).getDelta().getContent();
+        if (content != null) {
+            result.append(content);
+        }
     }
 
     @Override
-    public void onClosed(@NotNull EventSource eventSource) {
+    public void onClosed(EventSource eventSource) {
         log.info("OpenAI关闭sse连接...");
     }
 
     @SneakyThrows
     @Override
-    public void onFailure(@NotNull EventSource eventSource, Throwable t, Response response) {
+    public void onFailure(EventSource eventSource, Throwable t, Response response) {
         if (Objects.isNull(response)) {
             log.error("OpenAI  sse连接异常:{}", t);
 
             ApplicationManager.getApplication().invokeAndWait(() -> Messages.showMessageDialog("服务连接超时，请稍后重试！", "执行失败", Messages.getErrorIcon()));
-
             eventSource.cancel();
             return;
         }
@@ -94,8 +95,6 @@ public class UnintTestEventSourceListener extends EventSourceListener {
             log.error("OpenAI  sse连接异常data：{}，异常：{}", response, t);
         }
         eventSource.cancel();
-
         ApplicationManager.getApplication().invokeAndWait(() -> Messages.showMessageDialog("解析错误警告，请联系管理员！", "执行失败", Messages.getWarningIcon()));
-
     }
 }

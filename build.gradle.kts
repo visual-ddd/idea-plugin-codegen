@@ -34,7 +34,7 @@ dependencies {
     }
     implementation("org.apache.logging.log4j:log4j-core:2.14.0")
     implementation("org.apache.logging.log4j:log4j-api:2.14.0")
-    implementation("com.wakedata.common:wd-common-chatgpt:1.2.3-DDD17")
+    implementation("com.wakedata.common:wd-common-chatgpt:1.2.3-DDD34")
     implementation("org.jdesktop:beansbinding:1.2.1")
     implementation("cn.hutool:hutool-all:5.8.11")
     compileOnly("org.projectlombok:lombok:1.18.26")
