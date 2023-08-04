@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 public class GenerateTestCase extends AnAction {
 
@@ -63,11 +62,12 @@ public class GenerateTestCase extends AnAction {
             ChatCompletion q = ChatCompletion
                     .builder()
                     .messages(List.of(message))
-                    .model(ChatCompletion.Model.GPT_3_5_TURBO_16K_0613.getName()).maxTokens(8000)
+                    .model(ChatCompletion.Model.GPT_4.getName())
+                    .temperature(0)
                     .build();
 
             ChatGptProperties properties = new ChatGptProperties();
-            properties.setApiKey("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");
+            properties.setApiKey("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");
             properties.setProxyApiHost("https://ai-proxy.wakedt.cn/");
             ChatGptStreamClient chatGptStreamClient = new ChatGptStreamClient(properties);
             chatGptStreamClient.buildInstance().streamChatCompletion(q, eventSourceListener);
@@ -80,16 +80,28 @@ public class GenerateTestCase extends AnAction {
 
 
     public String prompt(String input) {
-        return "Title: Generating Unit Tests Using Mockito and JUnit4\n" +
-                "Background: To improve coding quality and reduce logical coding errors.\n" +
-                "Constraints:\n" +
-                "- optimizing imports\n" +
-                "- Cover all logical code and scenarios within functions\n" +
-                "- Cover every line of code within a method\n" +
-                "- Use testCase output\n" +
-                "- Do not initialize or assign values to attributes not in the code\n" +
-                "- Only output Java code\n" +
-                "- Include package path\n" +
-                "Input data:" + input;
+        return "Your task is to Generating Unit Tests Using Mockito and JUnit4;\n" +
+                "Generating Unit Tests Using Mockito and JUnit4;\n" +
+                "optimizing imports;\n" +
+                "Cover all logical code and scenarios within functions;\n" +
+                "Cover every line of code within a method;\n" +
+                "Use testCase output;\n" +
+                "Do not initialize or assign values to attributes not in the code;\n" +
+                "Only output Java code;\n" +
+                "Include package path;\n" +
+                "Give the code in the following format:\n" +
+                "Code: <Generate Code enclosed in three backticks ```>" +
+                "```java\n" + input + "```";
+//        return "Title: Generating Unit Tests Using Mockito and JUnit4\n" +
+//                "Background: To improve coding quality and reduce logical coding errors.\n" +
+//                "Constraints:\n" +
+//                "- optimizing imports\n" +
+//                "- Cover all logical code and scenarios within functions\n" +
+//                "- Cover every line of code within a method\n" +
+//                "- Use testCase output\n" +
+//                "- Do not initialize or assign values to attributes not in the code\n" +
+//                "- Only output Java code\n" +
+//                "- Include package path\n" +
+//                "Input data:" + input;
     }
 }

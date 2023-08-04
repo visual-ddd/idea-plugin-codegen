@@ -16,6 +16,9 @@ import okhttp3.sse.EventSourceListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.OptionalInt;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 描述： sse
@@ -46,10 +49,16 @@ public class ConsoleEventSourceListenerV2 extends EventSourceListener {
     public void onEvent(@NotNull EventSource eventSource, String id, String type, @NotNull String data) {
         log.info("OpenAI返回数据：{}", data);
         if (data.equals("[DONE]")) {
-            String content = result.toString();
 
-            int beginIndex = content.indexOf("package");
-            String classContent = beginIndex > -1 ? content.substring(beginIndex) : content;
+            String classContent = result.toString();
+            String pattern = "```java([\\s\\S]*?)```";
+
+            Pattern r = Pattern.compile(pattern);
+            Matcher m = r.matcher(classContent);
+            if (m.find( )) {
+                classContent = m.group(1);
+            }
+
             ReadJavaFile.writeFile(classContent, testFilePath);
 
             progressDialog.setValue(100);
