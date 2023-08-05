@@ -22,7 +22,6 @@ public class QueryBusinessInfoService {
             throw new IllegalStateException(exception.getMessage());
         }
         String result = response.body();
-        System.out.println(result);
 
         ResultDTO<BusinessSceneDTO> resultDTO = JSONUtil.toBean(result, new TypeReference<ResultDTO<BusinessSceneDTO>>() {}.getType(), true);
         if (!resultDTO.isSuccess()) {

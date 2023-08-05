@@ -22,7 +22,6 @@ public class QueryDomainInfoService {
             throw new IllegalStateException(exception.getMessage());
         }
         String result = response.body();
-        System.out.println(result);
 
         ResultDTO<DomainDesignDTO> resultDTO = JSONUtil.toBean(result, new TypeReference<ResultDTO<DomainDesignDTO>>() {}.getType(), true);
         if (!resultDTO.isSuccess()) {

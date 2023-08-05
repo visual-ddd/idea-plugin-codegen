@@ -312,14 +312,13 @@ public class SelectElementDialog extends JDialog {
         TemplateVisitor templateVisitor = new TemplateVisitor(templateContext);
         try {
             codeGenerateService.run(templateVisitor);
+            Messages.showMessageDialog("代码生成完成！", "执行成功", Messages.getInformationIcon());
         } catch (Exception e) {
             Messages.showMessageDialog(e.getMessage(), "代码生成服务异常", Messages.getErrorIcon());
-            return;
+        } finally {
+            dispose();
+            VirtualFileManager.getInstance().syncRefresh();
         }
-
-        Messages.showMessageDialog("代码生成完成！", "执行成功", Messages.getInformationIcon());
-        dispose();
-        VirtualFileManager.getInstance().syncRefresh();
     }
 
     private String buildAppDSLJson() {
