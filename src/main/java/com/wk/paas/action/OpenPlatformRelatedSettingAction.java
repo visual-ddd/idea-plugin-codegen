@@ -2,6 +2,7 @@ package com.wk.paas.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.project.Project;
 import com.wk.paas.window.BindAppVersion;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public class OpenPlatformRelatedSettingAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        BindAppVersion dialog = new BindAppVersion();
+        Project project = e.getProject();
+        new BindAppVersion(project);
     }
 }

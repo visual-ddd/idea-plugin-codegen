@@ -1,9 +1,9 @@
 package com.wk.paas.window.setting;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.wk.paas.service.dto.ApplicationDTO;
 import com.wk.paas.service.dto.ApplicationVersionDTO;
@@ -29,8 +29,8 @@ public class BindAppInfoSettings implements PersistentStateComponent<BindAppInfo
     private Long bindAppVersionId;
 
 
-    public static BindAppInfoSettings getInstance(){
-        return ServiceManager.getService(BindAppInfoSettings.class);
+    public static BindAppInfoSettings getInstance(Project project){
+        return project.getService(BindAppInfoSettings.class);
     }
 
     @Nullable

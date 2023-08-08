@@ -80,12 +80,12 @@ public class SelectElementDialog extends JDialog {
             return;
         }
 
-        BindAppInfoSettings appInfoSettings = BindAppInfoSettings.getInstance();
+        BindAppInfoSettings appInfoSettings = BindAppInfoSettings.getInstance(project);
         applicationDTO = appInfoSettings.getApplicationDTO();
         applicationVersionDTO = appInfoSettings.getApplicationVersionDTO();
         if (applicationDTO == null || applicationVersionDTO == null) {
             Messages.showMessageDialog("请先关联一个平台应用", "系统警告", Messages.getWarningIcon());
-            new BindAppVersion();
+            new BindAppVersion(project);
             return;
         }
 
@@ -278,7 +278,7 @@ public class SelectElementDialog extends JDialog {
 
         if (applicationDTO == null || applicationVersionDTO == null) {
             Messages.showMessageDialog("请先关联一个平台应用", "系统错误", Messages.getWarningIcon());
-            new BindAppVersion();
+            new BindAppVersion(project);
             return;
         }
 

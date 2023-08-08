@@ -1,5 +1,6 @@
 package com.wk.paas.window;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -40,6 +41,8 @@ public class BindAppVersion extends JDialog {
     private JComboBox<ApplicationDTO> boxApp;
     private JComboBox<ApplicationVersionDTO> boxAppVersion;
     private JLabel labelAppVersion, labelApp, labelTeam;
+
+    private Project project;
 
     private void updateTeamListData() {
         String mail;
@@ -93,7 +96,8 @@ public class BindAppVersion extends JDialog {
         boxAppVersion.setModel(appVersionInfos);
     }
 
-    public BindAppVersion() {
+    public BindAppVersion(Project project) {
+        this.project = project;
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -135,7 +139,7 @@ public class BindAppVersion extends JDialog {
 
         updateTeamListData();
 
-        BindAppInfoSettings instance = BindAppInfoSettings.getInstance();
+        BindAppInfoSettings instance = BindAppInfoSettings.getInstance(project);
         boxTeam.setSelectedItem(instance.getTeamDTO());
         boxApp.setSelectedItem(instance.getApplicationDTO());
         boxAppVersion.setSelectedItem(instance.getApplicationVersionDTO());
@@ -147,7 +151,7 @@ public class BindAppVersion extends JDialog {
     }
 
     private void onOK() {
-        BindAppInfoSettings bindAppInfoSettings = BindAppInfoSettings.getInstance();
+        BindAppInfoSettings bindAppInfoSettings = BindAppInfoSettings.getInstance(project);
         Object teamSelectItem;
         Object appSelectedItem;
         Object appVersionSelectedItem;

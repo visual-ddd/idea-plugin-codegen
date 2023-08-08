@@ -23,20 +23,20 @@ version = properties("pluginVersion")
 
 // Configure project's dependencies
 repositories {
+    maven {
+        setUrl("https://maven.aliyun.com/nexus/content/groups/public/")
+        setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
+    }
     mavenCentral()
-    mavenLocal()
+    gradlePluginPortal()
 }
 
 dependencies {
     implementation("com.wd.paas:wd-generator-core:1.0.0-SNAPSHOT") {
         exclude(group = "org.apache.velocity", module = "velocity")
-        exclude(group = "org.slf4j", module = "slf4j-simple")
     }
-    implementation("org.apache.logging.log4j:log4j-core:2.14.0")
-    implementation("org.apache.logging.log4j:log4j-api:2.14.0")
-    implementation("com.wakedata.common:wd-common-chatgpt:1.2.3-DDD34")
-    implementation("org.jdesktop:beansbinding:1.2.1")
-    implementation("cn.hutool:hutool-all:5.8.11")
+//    implementation("com.wakedata.common:wd-common-chatgpt:1.2.3-DDD34")
+    implementation("cn.hutool:hutool-all:5.8.12")
     compileOnly("org.projectlombok:lombok:1.18.26")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
 }
