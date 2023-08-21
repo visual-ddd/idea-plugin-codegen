@@ -11,6 +11,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.wd.paas.generator.CodeGenerateService;
+import com.wd.paas.generator.common.enums.ProjectTemplateType;
 import com.wd.paas.generator.generate.visitor.velocitytemplate.TemplateContext;
 import com.wd.paas.generator.generate.visitor.velocitytemplate.TemplateVisitor;
 import com.wk.paas.service.LoginService;
@@ -25,6 +26,7 @@ import com.wk.paas.window.setting.BindAppInfoSettings;
 import com.wk.paas.window.setting.LoginAccountInfoSettings;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -298,17 +300,22 @@ public class SelectElementDialog extends JDialog {
 
         String applicationDSL = buildAppDSLJson();
 
-        int result = Messages.showCheckboxOkCancelDialog("是否需要生成项目框架?", "选项",
+        int isGenerateProject = Messages.showCheckboxOkCancelDialog("是否需要生成项目框架?", "选项",
                 "生成项目框架", false, 0, 1, Messages.getInformationIcon());
-        if (result == Messages.CANCEL) {
+
+        int index = JOptionPane.showOptionDialog(this, "选择项目架构", "项目架构",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+                Messages.getInformationIcon(), new String[]{"COLA-分层架构", "COLA-单体架构"}, "COLA-分层架构");
+        ProjectTemplateType projectType = getProjectTemplateType(index);
+
+        if (isGenerateProject == Messages.CANCEL) {
             return;
         }
-        boolean isGenProjectFrame;
-        isGenProjectFrame = result == 1;
 
         CodeGenerateService codeGenerateService = new CodeGenerateService(applicationDSL);
         TemplateContext templateContext = new TemplateContext(outPath);
-        templateContext.setIsGenerateProjectFrame(isGenProjectFrame);
+        templateContext.setIsGenerateProjectFrame(isGenerateProject == 1);
+        templateContext.setProjectTemplateType(projectType);
         TemplateVisitor templateVisitor = new TemplateVisitor(templateContext);
         try {
             codeGenerateService.run(templateVisitor);
@@ -319,6 +326,22 @@ public class SelectElementDialog extends JDialog {
             dispose();
             VirtualFileManager.getInstance().syncRefresh();
         }
+    }
+
+    @NotNull
+    private static ProjectTemplateType getProjectTemplateType(int index) {
+        ProjectTemplateType projectType;
+        switch (index) {
+            case 0:
+                projectType = ProjectTemplateType.COLA;
+                break;
+            case 1:
+                projectType = ProjectTemplateType.COLA_SINGLE;
+                break;
+            default:
+                projectType = ProjectTemplateType.COLA;
+        }
+        return projectType;
     }
 
     private String buildAppDSLJson() {

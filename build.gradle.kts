@@ -32,7 +32,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.wd.paas:wd-generator-core:1.0.0-SNAPSHOT") {
+    implementation("com.wd.paas:wd-generator-core:2.0.0-SNAPSHOT") {
         exclude(group = "org.apache.velocity", module = "velocity")
     }
 //    implementation("com.wakedata.common:wd-common-chatgpt:1.2.3-DDD34")
