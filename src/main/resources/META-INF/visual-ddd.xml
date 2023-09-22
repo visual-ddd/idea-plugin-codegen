@@ -23,12 +23,12 @@
                     text="打开代码生成工具" icon="AllIcons.General.ExternalTools"/>
         </group>
 
-<!--        <group id="com.wk.paas.action.PopupMenuGroup" class="com.wk.paas.action.PopupMenuGroup"-->
-<!--               text="AI 开发工具" popup="true">-->
-<!--            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="ReplaceInPath"/>-->
-<!--            <action id="action.GenerateTestCase" class="com.wk.paas.action.GenerateTestCase"-->
-<!--                    text="AI 生成单元测试类" icon="AllIcons.Ide.HectorOn"/>-->
-<!--        </group>-->
+        <group id="com.wk.paas.action.PopupMenuGroup" class="com.wk.paas.action.PopupMenuGroup"
+               text="AI 开发工具" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="ReplaceInPath"/>
+            <action id="action.GenerateTestCase" class="com.wk.paas.action.GenerateTestCase"
+                    text="AI 生成单元测试类" icon="AllIcons.Ide.HectorOn"/>
+        </group>
     </actions>
 
 </idea-plugin>
