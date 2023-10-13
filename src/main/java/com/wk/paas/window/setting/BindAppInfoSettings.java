@@ -11,8 +11,6 @@ import com.wk.paas.service.dto.TeamDTO;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-
 /**
  * 存储绑定应用的信息
  */
@@ -33,7 +31,6 @@ public class BindAppInfoSettings implements PersistentStateComponent<BindAppInfo
         return project.getService(BindAppInfoSettings.class);
     }
 
-    @Nullable
     @Override
     public BindAppInfoSettings getState() {
         return this;

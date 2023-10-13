@@ -12,8 +12,6 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-
 /**
  * 存储账号的信息
  */
@@ -47,7 +45,6 @@ public class LoginAccountInfoSettings implements PersistentStateComponent<LoginA
         return new CredentialAttributes(CredentialAttributesKt.generateServiceName("Login", account));
     }
 
-    @Nullable
     @Override
     public LoginAccountInfoSettings getState() {
         return this;
