@@ -6,7 +6,7 @@
 
 <!-- Plugin description -->
 ## 开发云 - VisualDDD（DDD可视化开发平台）
-官网地址：https://ddd-test.wakedt.cn/login
+官网地址：https://visual-ddd.github.io/doc/
 
 ### 环境准备
 一、 配置开发云 host 访问环境
@@ -19,7 +19,7 @@
 1. 设置私服地址（推荐）
 
 - 添加插件私服地址
-> http://172.26.57.49:8849/download/updatePlugins.xml
+> https://172.26.57.49:8849/download/updatePlugins.xml
 - 搜索插件VisualDDD
 
 二、 登录平台账号
