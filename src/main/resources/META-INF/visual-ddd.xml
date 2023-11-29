@@ -1,0 +1,34 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="com.wk.paas.window.setting.BindAppInfoSettings"/>
+        <applicationService serviceImplementation="com.wk.paas.window.setting.LoginAccountInfoSettings"/>
+    </extensions>
+
+    <!--    <extensions defaultExtensionNs="com.intellij">-->
+    <!--        <toolWindow id="VisualDDD" anchor="right" factoryClass="com.wk.paas.menu.OpenToolWindowMainMenu"/>-->
+    <!--    </extensions>-->
+
+    <actions>
+        <group id="com.wk.paas.action.CustomDefaultActionGroup" class="com.wk.paas.action.CustomDefaultActionGroup"
+               text="DDD可视化开发平台" popup="true">
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <action id="action.LoginAction" class="com.wk.paas.action.LoginAction"
+                    text="登录" icon="AllIcons.Ide.HectorOn"/>
+            <action id="action.OpenPlatformRelatedSettingAction"
+                    class="com.wk.paas.action.OpenPlatformRelatedSettingAction"
+                    text="打开平台关联配置" icon="AllIcons.General.Settings"/>
+            <action id="action.OpenCodeGenToolAction" class="com.wk.paas.action.OpenCodeGenToolAction"
+                    text="打开代码生成工具" icon="AllIcons.General.ExternalTools"/>
+        </group>
+
+<!--        <group id="com.wk.paas.action.PopupMenuGroup" class="com.wk.paas.action.PopupMenuGroup"-->
+<!--               text="AI 开发工具" popup="true">-->
+<!--            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="ReplaceInPath"/>-->
+<!--            <action id="action.GenerateTestCase" class="com.wk.paas.action.GenerateTestCase"-->
+<!--                    text="AI 生成单元测试类" icon="AllIcons.Ide.HectorOn"/>-->
+<!--        </group>-->
+    </actions>
+
+</idea-plugin>
