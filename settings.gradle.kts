@@ -1,1 +1,1 @@
-rootProject.name = "idea-plugin-dev"
+rootProject.name = "idea-plugin-codegen"
