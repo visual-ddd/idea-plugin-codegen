@@ -3,6 +3,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceImplementation="com.wk.paas.window.setting.BindAppInfoSettings"/>
+        <projectService serviceImplementation="com.wk.paas.window.setting.CodeGenerateConfiguration"/>
         <applicationService serviceImplementation="com.wk.paas.window.setting.LoginAccountInfoSettings"/>
     </extensions>
 

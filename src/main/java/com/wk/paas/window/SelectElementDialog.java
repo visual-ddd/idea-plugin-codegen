@@ -11,6 +11,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.wd.paas.generator.CodeGenerateService;
+import com.wd.paas.generator.common.enums.GenerateOperationTypeEnum;
 import com.wd.paas.generator.common.enums.ProjectTemplateType;
 import com.wd.paas.generator.generate.visitor.velocitytemplate.TemplateContext;
 import com.wd.paas.generator.generate.visitor.velocitytemplate.TemplateVisitor;
@@ -23,10 +24,10 @@ import com.wk.paas.window.cell.BusinessListCellRenderer;
 import com.wk.paas.window.cell.DomainListCellRenderer;
 import com.wk.paas.window.setting.AppDSLBuilder;
 import com.wk.paas.window.setting.BindAppInfoSettings;
+import com.wk.paas.window.setting.CodeGenerateConfiguration;
 import com.wk.paas.window.setting.LoginAccountInfoSettings;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -65,11 +66,20 @@ public class SelectElementDialog extends JDialog {
     private JTextField textProjectIdentity;
     private JCheckBox overrideIdentityCheckBox;
     private JButton copyDSLButton;
+    private JRadioButton initCodeRadioButton;
+    private JRadioButton updateCodeRadioButton;
+    private JCheckBox isInitProjectStructCheckBox;
+    private JRadioButton colaRadioButton;
+    private JRadioButton colaSingleRadioButton;
 
     private ApplicationDTO applicationDTO;
     private ApplicationVersionDTO applicationVersionDTO;
     private List<DomainDesignVersionDTO> domainDesignVersionDTOList;
     private List<BusinessSceneVersionDTO> businessSceneVersionDTOList;
+
+    // 配置信息
+    private final CodeGenerateConfiguration config;
+    private BindAppInfoSettings projectConfig;
 
     @SneakyThrows
     private void updateListData() {
@@ -82,9 +92,9 @@ public class SelectElementDialog extends JDialog {
             return;
         }
 
-        BindAppInfoSettings appInfoSettings = BindAppInfoSettings.getInstance(project);
-        applicationDTO = appInfoSettings.getApplicationDTO();
-        applicationVersionDTO = appInfoSettings.getApplicationVersionDTO();
+        projectConfig = BindAppInfoSettings.getInstance(project);
+        applicationDTO = projectConfig.getApplicationDTO();
+        applicationVersionDTO = projectConfig.getApplicationVersionDTO();
         if (applicationDTO == null || applicationVersionDTO == null) {
             Messages.showMessageDialog("请先关联一个平台应用", "系统警告", Messages.getWarningIcon());
             new BindAppVersion(project);
@@ -154,6 +164,35 @@ public class SelectElementDialog extends JDialog {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+
+        // 创建一个按钮组并将JRadioButton添加到其中
+        ButtonGroup buttonGroup = new ButtonGroup();
+        buttonGroup.add(initCodeRadioButton);
+        buttonGroup.add(updateCodeRadioButton);
+
+        ButtonGroup buttonGroup2 = new ButtonGroup();
+        buttonGroup2.add(colaRadioButton);
+        buttonGroup2.add(colaSingleRadioButton);
+
+        // 获取配置信息
+        config = CodeGenerateConfiguration.getInstance(project);
+        if (config != null) {
+            initCodeRadioButton.setSelected(config.isInitCodeRadioButton());
+            updateCodeRadioButton.setSelected(config.isUpdateCodeRadioButton());
+            colaRadioButton.setSelected(config.isColaRadioButton());
+            colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
+            isInitProjectStructCheckBox.setSelected(config.isInitProjectStructCheckBox());
+        }
+
+        projectConfig = BindAppInfoSettings.getInstance(project);
+        if (projectConfig != null) {
+            applicationDTO = projectConfig.getApplicationDTO();
+            applicationVersionDTO = projectConfig.getApplicationVersionDTO();
+
+            textProjectIdentity.setText(applicationDTO.getIdentity());
+            textProjectPackage.setText(applicationDTO.getPackageName());
+            textProjectVersion.setText(applicationVersionDTO.getCurrentVersion());
+        }
 
         buttonOK.addActionListener(e -> onOK());
 
@@ -300,22 +339,71 @@ public class SelectElementDialog extends JDialog {
 
         String applicationDSL = buildAppDSLJson();
 
-        int isGenerateProject = Messages.showCheckboxOkCancelDialog("是否需要生成项目框架?", "选项",
-                "生成项目框架", false, 0, 1, Messages.getInformationIcon());
+        int isUpdateCode;
+        int projectType;
+        int isGenerateProject;
 
-        int index = JOptionPane.showOptionDialog(this, "选择项目架构", "项目架构",
+//        int isUpdateCode = JOptionPane.showOptionDialog(this, "选择操作类型", "操作类型",
+//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+//                Messages.getInformationIcon(), new String[]{"同步局部代码", "初始化代码"}, "同步局部代码");
+//
+//        int projectType = JOptionPane.showOptionDialog(this, "选择项目架构", "项目架构",
+//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+//                Messages.getInformationIcon(), new String[]{"COLA-分层架构", "COLA-单体架构"}, "COLA-分层架构");
+//
+//        int isGenerateProject = JOptionPane.showOptionDialog(this, "项目框架生成", "项目框架",
+//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+//                Messages.getInformationIcon(), new String[]{"跳过", "生成"}, "跳过");
+
+        // 操作类型
+        if (initCodeRadioButton.isSelected()) {
+            isUpdateCode = 1;
+        } else if (updateCodeRadioButton.isSelected()) {
+            isUpdateCode = 0;
+        } else {
+            isUpdateCode = 0;
+        }
+
+        // 项目架构
+        if (colaRadioButton.isSelected()) {
+            projectType = 0;
+        } else if (colaSingleRadioButton.isSelected()) {
+            projectType = 1;
+        } else {
+            projectType = 0;
+        }
+
+        // 项目框架生成
+        if (isInitProjectStructCheckBox.isSelected()) {
+            isGenerateProject = 1;
+        } else {
+            isGenerateProject = 0;
+        }
+
+        // 在用户点击 OK 按钮时保存配置信息
+        if (config != null) {
+            config.setInitCodeRadioButton(initCodeRadioButton.isSelected());
+            config.setUpdateCodeRadioButton(updateCodeRadioButton.isSelected());
+            config.setColaRadioButton(colaRadioButton.isSelected());
+            config.setColaSingleRadioButton(colaSingleRadioButton.isSelected());
+            config.setInitProjectStructCheckBox(isInitProjectStructCheckBox.isSelected());
+            // 保存其他的配置信息...
+        }
+
+
+        int isStart = JOptionPane.showOptionDialog(this, "是否开始执行", "执行",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-                Messages.getInformationIcon(), new String[]{"COLA-分层架构", "COLA-单体架构"}, "COLA-分层架构");
-        ProjectTemplateType projectType = getProjectTemplateType(index);
-
-        if (isGenerateProject == Messages.CANCEL) {
+                Messages.getInformationIcon(), new String[]{"确认", "退出"}, "确认");
+        if (isStart == 1) {
             return;
         }
 
         CodeGenerateService codeGenerateService = new CodeGenerateService(applicationDSL);
         TemplateContext templateContext = new TemplateContext(outPath);
-        templateContext.setIsGenerateProjectFrame(isGenerateProject == 1);
-        templateContext.setProjectTemplateType(projectType);
+        templateContext.setIsGenerateProjectFrame(isGenerateProject == 0);
+        templateContext.setProjectTemplateType(projectType == 0 ? ProjectTemplateType.COLA : ProjectTemplateType.COLA_SINGLE);
+        templateContext.setOperationTypeEnum(isUpdateCode == 0 ? GenerateOperationTypeEnum.UPDATE_CODE : GenerateOperationTypeEnum.INIT_CODE);
+
         TemplateVisitor templateVisitor = new TemplateVisitor(templateContext);
         try {
             codeGenerateService.run(templateVisitor);
@@ -326,22 +414,6 @@ public class SelectElementDialog extends JDialog {
             dispose();
             VirtualFileManager.getInstance().syncRefresh();
         }
-    }
-
-    @NotNull
-    private static ProjectTemplateType getProjectTemplateType(int index) {
-        ProjectTemplateType projectType;
-        switch (index) {
-            case 0:
-                projectType = ProjectTemplateType.COLA;
-                break;
-            case 1:
-                projectType = ProjectTemplateType.COLA_SINGLE;
-                break;
-            default:
-                projectType = ProjectTemplateType.COLA;
-        }
-        return projectType;
     }
 
     private String buildAppDSLJson() {
