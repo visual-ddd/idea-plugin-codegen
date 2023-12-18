@@ -182,7 +182,7 @@ public class SelectElementDialog extends JDialog {
             colaRadioButton.setSelected(config.isColaRadioButton());
             colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
             isInitProjectStructCheckBox.setSelected(config.isInitProjectStructCheckBox());
-            textFieldOutputPath.setText(config.getTextFieldOutputPath());
+            textFieldOutputPath.setText(Optional.ofNullable(config.getTextFieldOutputPath()).orElse(project.getBasePath()));
         }
 
         projectConfig = BindAppInfoSettings.getInstance(project);
