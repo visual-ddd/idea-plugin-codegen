@@ -187,11 +187,13 @@ public class SelectElementDialog extends JDialog {
 
         projectConfig = BindAppInfoSettings.getInstance(project);
         if (projectConfig != null) {
-            applicationDTO = projectConfig.getApplicationDTO();
-            applicationVersionDTO = projectConfig.getApplicationVersionDTO();
+            applicationDTO = Optional.ofNullable(projectConfig.getApplicationDTO()).orElse(new ApplicationDTO());
+            applicationVersionDTO = Optional.ofNullable(projectConfig.getApplicationVersionDTO()).orElse(new ApplicationVersionDTO());
 
-            textProjectIdentity.setText(applicationDTO.getIdentity());
-            textProjectPackage.setText(applicationDTO.getPackageName());
+            String applicationDTOIdentity = applicationDTO.getIdentity();
+            String packageName = applicationDTO.getPackageName();
+            textProjectIdentity.setText(applicationDTOIdentity);
+            textProjectPackage.setText(packageName);
             textProjectVersion.setText(applicationVersionDTO.getCurrentVersion());
         }
 
