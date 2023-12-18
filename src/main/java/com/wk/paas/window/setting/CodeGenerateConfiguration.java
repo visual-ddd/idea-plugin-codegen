@@ -29,6 +29,8 @@ public class CodeGenerateConfiguration implements PersistentStateComponent<CodeG
     private List<DomainDesignVersionDTO> domainDesignVersionDTOList;
     private List<BusinessSceneVersionDTO> businessSceneVersionDTOList;
 
+    private String textFieldOutputPath;
+
     public static CodeGenerateConfiguration getInstance(Project project){
         return project.getService(CodeGenerateConfiguration.class);
     }

@@ -150,7 +150,7 @@ public class SelectElementDialog extends JDialog {
         });
         thread.start();
         progressDialog.setVisible(true);
-        thread.join(1000);
+        thread.join();
 
         domainList.addAll(domainDesignVersionDTOList);
         businessList.addAll(businessSceneVersionDTOList);
@@ -182,6 +182,7 @@ public class SelectElementDialog extends JDialog {
             colaRadioButton.setSelected(config.isColaRadioButton());
             colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
             isInitProjectStructCheckBox.setSelected(config.isInitProjectStructCheckBox());
+            textFieldOutputPath.setText(config.getTextFieldOutputPath());
         }
 
         projectConfig = BindAppInfoSettings.getInstance(project);
@@ -257,7 +258,7 @@ public class SelectElementDialog extends JDialog {
                 }
             }
         });
-        textFieldOutputPath.setText(project.getBasePath());
+//        textFieldOutputPath.setText(project.getBasePath());
         pathButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser(textFieldOutputPath.getText());
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -387,6 +388,7 @@ public class SelectElementDialog extends JDialog {
             config.setColaRadioButton(colaRadioButton.isSelected());
             config.setColaSingleRadioButton(colaSingleRadioButton.isSelected());
             config.setInitProjectStructCheckBox(isInitProjectStructCheckBox.isSelected());
+            config.setTextFieldOutputPath(textFieldOutputPath.getText());
             // 保存其他的配置信息...
         }
 
