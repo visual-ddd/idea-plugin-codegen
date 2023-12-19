@@ -368,16 +368,9 @@ public class SelectElementDialog extends JDialog {
         if (colaRadioButton.isSelected()) {
             projectType = 0;
         } else if (colaSingleRadioButton.isSelected()) {
-            projectType = 1;
-        } else {
             projectType = 0;
-        }
-
-        // 项目框架生成
-        if (isInitProjectStructCheckBox.isSelected()) {
-            isGenerateProject = 1;
         } else {
-            isGenerateProject = 0;
+            projectType = 1;
         }
 
         // 在用户点击 OK 按钮时保存配置信息
@@ -400,7 +393,7 @@ public class SelectElementDialog extends JDialog {
 
         CodeGenerateService codeGenerateService = new CodeGenerateService(applicationDSL);
         TemplateContext templateContext = new TemplateContext(outPath);
-        templateContext.setIsGenerateProjectFrame(isGenerateProject == 0);
+        templateContext.setIsGenerateProjectFrame(isInitProjectStructCheckBox.isSelected());
         templateContext.setProjectTemplateType(projectType == 0 ? ProjectTemplateType.COLA : ProjectTemplateType.COLA_SINGLE);
         templateContext.setOperationTypeEnum(isUpdateCode == 0 ? GenerateOperationTypeEnum.UPDATE_CODE : GenerateOperationTypeEnum.INIT_CODE);
 
