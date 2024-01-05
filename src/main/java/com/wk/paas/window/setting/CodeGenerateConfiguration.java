@@ -5,8 +5,6 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.wk.paas.service.dto.ApplicationDTO;
-import com.wk.paas.service.dto.ApplicationVersionDTO;
 import com.wk.paas.service.dto.BusinessSceneVersionDTO;
 import com.wk.paas.service.dto.DomainDesignVersionDTO;
 import lombok.Data;
@@ -23,13 +21,19 @@ public class CodeGenerateConfiguration implements PersistentStateComponent<CodeG
     private boolean colaRadioButton;
     private boolean colaSingleRadioButton;
     private boolean isInitProjectStructCheckBox;
+    private String outPath;
 
-    private ApplicationDTO applicationDTO;
-    private ApplicationVersionDTO applicationVersionDTO;
-    private List<DomainDesignVersionDTO> domainDesignVersionDTOList;
-    private List<BusinessSceneVersionDTO> businessSceneVersionDTOList;
+    private String overrideProjectIdentity;
+    private String overrideProjectPackage;
+    private String overrideProjectVersion;
 
-    public static CodeGenerateConfiguration getInstance(Project project){
+    private List<DomainDesignVersionDTO> domainList;
+    private List<BusinessSceneVersionDTO> sceneList;
+
+    private List<DomainDesignVersionDTO> domainSelectedList;
+    private List<BusinessSceneVersionDTO> sceneSelectedList;
+
+    public static CodeGenerateConfiguration getInstance(Project project) {
         return project.getService(CodeGenerateConfiguration.class);
     }
 

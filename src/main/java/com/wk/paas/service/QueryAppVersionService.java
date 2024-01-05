@@ -14,8 +14,8 @@ import java.util.List;
 
 public class QueryAppVersionService {
 
-    public static final String API_APPLICATION_VERSION_PAGE_QUERY = PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-page-query?";
-    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = PlatformServiceConfig.HOST + "/wd/visual/web/application-version/application-version-detail-query?";
+    public static final String API_APPLICATION_VERSION_PAGE_QUERY = PlatformServiceConfig.URL_PREFIX + "/web/application-version/application-version-page-query?";
+    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = PlatformServiceConfig.URL_PREFIX + "/web/application-version/application-version-detail-query-exclude-dsl?";
 
     public List<ApplicationVersionDTO> queryByAppId(String appId) {
         HttpRequest httpRequest = HttpRequest.get(API_APPLICATION_VERSION_PAGE_QUERY.concat("applicationId=").concat(appId));
@@ -54,7 +54,7 @@ public class QueryAppVersionService {
 
         ResultDTO<ApplicationVersionDTO> resultDTO = JSONUtil.toBean(result, new TypeReference<ResultDTO<ApplicationVersionDTO>>() {}.getType(), true);
         if (!resultDTO.isSuccess()) {
-            throw new IllegalStateException(resultDTO.getMsg());
+            throw new IllegalStateException("拉取应用版本信息失败！");
         }
         return resultDTO.getData();
     }

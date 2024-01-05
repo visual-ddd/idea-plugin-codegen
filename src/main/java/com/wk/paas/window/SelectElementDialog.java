@@ -1,28 +1,20 @@
 package com.wk.paas.window;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import com.wd.paas.generator.CodeGenerateService;
-import com.wd.paas.generator.common.enums.GenerateOperationTypeEnum;
-import com.wd.paas.generator.common.enums.ProjectTemplateType;
-import com.wd.paas.generator.generate.visitor.velocitytemplate.TemplateContext;
-import com.wd.paas.generator.generate.visitor.velocitytemplate.TemplateVisitor;
+import com.wk.paas.service.GenerateCodeService;
 import com.wk.paas.service.LoginService;
 import com.wk.paas.service.QueryAppVersionService;
-import com.wk.paas.service.QueryBusinessInfoService;
-import com.wk.paas.service.QueryDomainInfoService;
-import com.wk.paas.service.dto.*;
+import com.wk.paas.service.dto.ApplicationDTO;
+import com.wk.paas.service.dto.ApplicationVersionDTO;
+import com.wk.paas.service.dto.BusinessSceneVersionDTO;
+import com.wk.paas.service.dto.DomainDesignVersionDTO;
 import com.wk.paas.window.cell.BusinessListCellRenderer;
 import com.wk.paas.window.cell.DomainListCellRenderer;
-import com.wk.paas.window.setting.AppDSLBuilder;
 import com.wk.paas.window.setting.BindAppInfoSettings;
 import com.wk.paas.window.setting.CodeGenerateConfiguration;
 import com.wk.paas.window.setting.LoginAccountInfoSettings;
@@ -39,23 +31,21 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class SelectElementDialog extends JDialog {
 
-    private Project project;
-    private DomainListCellRenderer domainListCellRenderer;
-    private BusinessListCellRenderer businessListCellRenderer;
-    private DefaultListModel domainList = new DefaultListModel();
-    private DefaultListModel businessList = new DefaultListModel();
+    private final Project project;
+    private CodeGenerateConfiguration config;
 
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JList listBindDomain;
-    private JList listBindBusiness;
+    private JList<DomainDesignVersionDTO> listBindDomain;
+    private JList<BusinessSceneVersionDTO> listBindBusiness;
     private JButton refreshButton;
     private JTextField textFieldOutputPath;
     private JButton pathButton;
@@ -71,15 +61,8 @@ public class SelectElementDialog extends JDialog {
     private JCheckBox isInitProjectStructCheckBox;
     private JRadioButton colaRadioButton;
     private JRadioButton colaSingleRadioButton;
-
-    private ApplicationDTO applicationDTO;
-    private ApplicationVersionDTO applicationVersionDTO;
-    private List<DomainDesignVersionDTO> domainDesignVersionDTOList;
-    private List<BusinessSceneVersionDTO> businessSceneVersionDTOList;
-
-    // 配置信息
-    private final CodeGenerateConfiguration config;
-    private BindAppInfoSettings projectConfig;
+    private JButton saveButton;
+    private JButton bindProjectButton;
 
     @SneakyThrows
     private void updateListData() {
@@ -92,9 +75,9 @@ public class SelectElementDialog extends JDialog {
             return;
         }
 
-        projectConfig = BindAppInfoSettings.getInstance(project);
-        applicationDTO = projectConfig.getApplicationDTO();
-        applicationVersionDTO = projectConfig.getApplicationVersionDTO();
+        BindAppInfoSettings projectConfig = BindAppInfoSettings.getInstance(project);
+        ApplicationDTO applicationDTO = projectConfig.getApplicationDTO();
+        ApplicationVersionDTO applicationVersionDTO = projectConfig.getApplicationVersionDTO();
         if (applicationDTO == null || applicationVersionDTO == null) {
             Messages.showMessageDialog("请先关联一个平台应用", "系统警告", Messages.getWarningIcon());
             new BindAppVersion(project);
@@ -106,56 +89,57 @@ public class SelectElementDialog extends JDialog {
         textProjectPackage.setText(applicationDTO.getPackageName());
         textProjectVersion.setText(applicationVersionDTO.getCurrentVersion());
 
-        domainList.clear();
-        businessList.clear();
+        ProgressDialog progressDialog = new ProgressDialog(SelectElementDialog.this, "准备加载平台模型...");
 
-        AtomicReference<ApplicationVersionDTO> applicationVersionInfo = new AtomicReference<>();
+        SwingWorker<Void, Integer> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                try {
+                    new LoginService().login(mail, password);
+                    publish(10);
+                    publish(20);
 
+                    progressDialog.setTitle("正在加载应用模型...");
+                    ApplicationVersionDTO applicationVersionDetail = new QueryAppVersionService().detailQuery(String.valueOf(applicationVersionDTO.getId()));
+                    publish(30);
+                    publish(40);
 
-        ProgressDialog progressDialog = new ProgressDialog(SelectElementDialog.this, "正在加载平台模型...");
-        Thread thread = new Thread(() -> {
-            try {
-                new LoginService().login(mail, password);
-                progressDialog.setValue(10);
-                progressDialog.setValue(20);
+                    progressDialog.setTitle("正在加载业务域模型...");
+                    List<DomainDesignVersionDTO> domainDesignVersionDTOList = Optional.ofNullable(applicationVersionDetail.getDomainDesignVersionDTOList()).orElse(new ArrayList<>());
+                    listBindDomain.setListData(domainDesignVersionDTOList.toArray(new DomainDesignVersionDTO[0]));
+                    publish(60);
+                    publish(70);
 
-                applicationVersionInfo.set(new QueryAppVersionService().detailQuery(String.valueOf(this.applicationVersionDTO.getId())));
-                progressDialog.setValue(30);
-                progressDialog.setValue(40);
+                    progressDialog.setTitle("正在加载业务场景模型...");
+                    List<BusinessSceneVersionDTO> businessSceneVersionDTOList = Optional.ofNullable(applicationVersionDetail.getBusinessSceneVersionDTOList()).orElse(new ArrayList<>());
+                    listBindBusiness.setListData(businessSceneVersionDTOList.toArray(new BusinessSceneVersionDTO[0]));
+                    publish(80);
+                    publish(100);
 
-                domainDesignVersionDTOList = Optional.ofNullable(applicationVersionInfo.get().getDomainDesignVersionDTOList()).orElse(new ArrayList<>());
-                businessSceneVersionDTOList = Optional.ofNullable(applicationVersionInfo.get().getBusinessSceneVersionDTOList()).orElse(new ArrayList<>());
-
-                for (DomainDesignVersionDTO domainDesignVersionDTO : domainDesignVersionDTOList) {
-                    Long domainDesignId = domainDesignVersionDTO.getDomainDesignId();
-                    DomainDesignDTO domainDesignDTO = new QueryDomainInfoService().queryByDomainId(domainDesignId);
-                    domainDesignVersionDTO.setDomainDesignDTO(domainDesignDTO);
+                } catch (Exception exception) {
+                    ApplicationManager.getApplication().invokeLater(() -> {
+                        Messages.showMessageDialog(project, exception.getMessage(), "更新模块列表失败", Messages.getErrorIcon());
+                    });
                 }
-                progressDialog.setValue(60);
-                progressDialog.setValue(70);
+                return null;
+            }
 
-                for (BusinessSceneVersionDTO businessSceneVersionDTO : businessSceneVersionDTOList) {
-                    Long businessSceneId = businessSceneVersionDTO.getBusinessSceneId();
-                    BusinessSceneDTO businessSceneDTO = new QueryBusinessInfoService().queryByBusinessId(businessSceneId);
-                    businessSceneVersionDTO.setBusinessSceneDTO(businessSceneDTO);
+            @Override
+            protected void process(List<Integer> chunks) {
+                for (int value : chunks) {
+                    progressDialog.setValue(value);
                 }
-                progressDialog.setValue(80);
-                progressDialog.setValue(100); // 将进度条的值设置为 100%
+            }
 
-            } catch (Exception exception) {
-                Messages.showMessageDialog(project, exception.getMessage(), "系统错误", Messages.getErrorIcon());
-            } finally {
+            @Override
+            protected void done() {
                 progressDialog.dispose();
             }
-        });
-        thread.start();
-        progressDialog.setVisible(true);
-        thread.join(1000);
+        };
 
-        domainList.addAll(domainDesignVersionDTOList);
-        businessList.addAll(businessSceneVersionDTOList);
-        listBindDomain.setListData(domainList.toArray());
-        listBindBusiness.setListData(businessList.toArray());
+        worker.execute();
+        progressDialog.setVisible(true);
+
     }
 
     public SelectElementDialog(Project project) {
@@ -174,7 +158,12 @@ public class SelectElementDialog extends JDialog {
         buttonGroup2.add(colaRadioButton);
         buttonGroup2.add(colaSingleRadioButton);
 
-        // 获取配置信息
+
+        // 配置信息
+        String overrideProjectIdentity = null;
+        String overrideProjectPackage = null;
+        String overrideProjectVersion = null;
+
         config = CodeGenerateConfiguration.getInstance(project);
         if (config != null) {
             initCodeRadioButton.setSelected(config.isInitCodeRadioButton());
@@ -182,20 +171,63 @@ public class SelectElementDialog extends JDialog {
             colaRadioButton.setSelected(config.isColaRadioButton());
             colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
             isInitProjectStructCheckBox.setSelected(config.isInitProjectStructCheckBox());
+            textFieldOutputPath.setText(config.getOutPath());
+
+            DefaultListModel<DomainDesignVersionDTO> domainListModel = new DefaultListModel<>();
+            Optional.ofNullable(config.getDomainList())
+                    .ifPresent(domainList -> domainList.forEach(domainListModel::addElement));
+            listBindDomain.setModel(domainListModel);
+
+            DefaultListModel<BusinessSceneVersionDTO> sceneListModel = new DefaultListModel<>();
+            Optional.ofNullable(config.getSceneList())
+                    .ifPresent(sceneList -> sceneList.forEach(sceneListModel::addElement));
+            listBindBusiness.setModel(sceneListModel);
+
+
+            Optional.ofNullable(config.getDomainSelectedList())
+                    .ifPresent(selectedDomainList -> {
+                        ListModel<DomainDesignVersionDTO> model = listBindDomain.getModel();
+                        int[] selectedIndices = IntStream.range(0, model.getSize())
+                                .filter(i -> selectedDomainList.contains(model.getElementAt(i)))
+                                .toArray();
+                        if (selectedIndices.length > 0) {
+                            listBindDomain.getSelectionModel().setSelectionInterval(selectedIndices[0], selectedIndices[selectedIndices.length - 1]);
+                        }
+                    });
+
+
+            Optional.ofNullable(config.getSceneSelectedList())
+                    .ifPresent(selectedSceneList -> {
+                        int[] selectedIndices = IntStream.range(0, listBindBusiness.getModel().getSize())
+                                .filter(i -> selectedSceneList.contains(listBindBusiness.getModel().getElementAt(i)))
+                                .toArray();
+                        if (selectedIndices.length > 0) {
+                            listBindBusiness.setSelectedIndices(selectedIndices);
+                        }
+                    });
+
+            overrideProjectIdentity = config.getOverrideProjectIdentity();
+            overrideProjectPackage = config.getOverrideProjectPackage();
+            overrideProjectVersion = config.getOverrideProjectVersion();
         }
 
-        projectConfig = BindAppInfoSettings.getInstance(project);
+        // 应用绑定信息
+        BindAppInfoSettings projectConfig = BindAppInfoSettings.getInstance(project);
+        ApplicationDTO applicationDTO;
+        ApplicationVersionDTO applicationVersionDTO;
         if (projectConfig != null) {
             applicationDTO = projectConfig.getApplicationDTO();
             applicationVersionDTO = projectConfig.getApplicationVersionDTO();
 
-            textProjectIdentity.setText(applicationDTO.getIdentity());
-            textProjectPackage.setText(applicationDTO.getPackageName());
-            textProjectVersion.setText(applicationVersionDTO.getCurrentVersion());
+            textProjectIdentity.setText(overrideProjectIdentity == null ? applicationDTO.getIdentity() : overrideProjectIdentity);
+            textProjectPackage.setText(overrideProjectPackage == null ? applicationDTO.getPackageName() : overrideProjectPackage);
+            textProjectVersion.setText(overrideProjectVersion == null ? applicationVersionDTO.getCurrentVersion() : overrideProjectVersion);
+        } else {
+            applicationVersionDTO = null;
+            applicationDTO = null;
         }
 
         buttonOK.addActionListener(e -> onOK());
-
         buttonCancel.addActionListener(e -> onCancel());
 
         // call onCancel() when cross is clicked
@@ -209,62 +241,32 @@ public class SelectElementDialog extends JDialog {
 
         // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-
-        domainListCellRenderer = new DomainListCellRenderer();
-        businessListCellRenderer = new BusinessListCellRenderer();
-        listBindDomain.setCellRenderer(domainListCellRenderer);
-        listBindBusiness.setCellRenderer(businessListCellRenderer);
         refreshButton.addActionListener(e -> onRefresh());
-        listBindDomain.setSelectionModel(new DefaultListSelectionModel() {
-            @Override
-            public void setSelectionInterval(int index0, int index1) {
-                if (index0 == index1 && (isSelectedIndex(index0))) {
-                    removeSelectionInterval(index0, index0);
-                    return;
-                }
-                super.setSelectionInterval(index0, index1);
-            }
+        saveButton.addActionListener(e -> onSave());
+        bindProjectButton.addActionListener(e -> onBindProject());
 
-            @Override
-            public void addSelectionInterval(int index0, int index1) {
-                if (index0 == index1) {
-                    if (isSelectedIndex(index0)) {
-                        removeSelectionInterval(index0, index0);
-                        return;
-                    }
-                    super.addSelectionInterval(index0, index1);
-                }
-            }
-        });
-        listBindBusiness.setSelectionModel(new DefaultListSelectionModel() {
-            @Override
-            public void setSelectionInterval(int index0, int index1) {
-                if (index0 == index1 && (isSelectedIndex(index0))) {
-                    removeSelectionInterval(index0, index0);
-                    return;
-                }
-                super.setSelectionInterval(index0, index1);
-            }
+        listBindDomain.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        listBindBusiness.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        listBindDomain.setCellRenderer(new DomainListCellRenderer());
+        listBindBusiness.setCellRenderer(new BusinessListCellRenderer());
 
-            @Override
-            public void addSelectionInterval(int index0, int index1) {
-                if (index0 == index1) {
-                    if (isSelectedIndex(index0)) {
-                        removeSelectionInterval(index0, index0);
-                        return;
-                    }
-                    super.addSelectionInterval(index0, index1);
-                }
-            }
-        });
         textFieldOutputPath.setText(project.getBasePath());
         pathButton.addActionListener(e -> {
-            JFileChooser fileChooser = new JFileChooser(textFieldOutputPath.getText());
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            int option = fileChooser.showOpenDialog(this);
-            if (option == JFileChooser.APPROVE_OPTION) {
-                File file = fileChooser.getSelectedFile();
-                textFieldOutputPath.setText(file.toString());
+            File selectedDirectory = null;
+            String initialDirectoryPath = textFieldOutputPath.getText();
+            if (!initialDirectoryPath.isEmpty()) {
+                selectedDirectory = new File(initialDirectoryPath);
+            }
+
+            FileDialog fileDialog = new FileDialog((Frame) null, "Select Folder", FileDialog.LOAD);
+            fileDialog.setMode(FileDialog.LOAD);
+            fileDialog.setDirectory(selectedDirectory != null ? selectedDirectory.getAbsolutePath() : null);
+            fileDialog.setVisible(true);
+
+            String selectedFilePath = fileDialog.getFile();
+            if (selectedFilePath != null) {
+                File file = new File(fileDialog.getDirectory(), selectedFilePath);
+                textFieldOutputPath.setText(file.getAbsolutePath());
             }
         });
         overrideIdentityCheckBox.addActionListener(e -> {
@@ -294,32 +296,30 @@ public class SelectElementDialog extends JDialog {
                 textProjectVersion.setEnabled(false);
             }
         });
-//        listBindDomain.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-//        listBindBusiness.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        copyDSLButton.addActionListener(e -> {
-            String appDSLJson = buildAppDSLJson();
-            setClipboardString(appDSLJson);
-        });
+//        copyDSLButton.addActionListener(e -> {
+//            String appDSLJson = buildAppDSLJson();
+//            setClipboardString(appDSLJson);
+//        });
     }
 
     private void onRefresh() {
+        refreshButton.setEnabled(false);
+
+        // 执行刷新操作的代码...
+        updateListData();
+
+        // 刷新操作完成后，重新启用刷新按钮
+        refreshButton.setEnabled(true);
+    }
+
+    private void onBindProject() {
+        new BindAppVersion(project);
         updateListData();
     }
 
-    private void onOK() {
-        String outPath = textFieldOutputPath.getText();
-        if (StringUtils.isBlank(outPath)) {
+    private void onSave() {
+        if (StringUtils.isBlank(textFieldOutputPath.getText())) {
             Messages.showMessageDialog("输出路径不能为空！", "参数错误", Messages.getWarningIcon());
-            return;
-        }
-        if (!FileUtil.isDirectory(outPath)) {
-            Messages.showMessageDialog("输出路径不是一个文件夹", "参数错误", Messages.getWarningIcon());
-            return;
-        }
-
-        if (applicationDTO == null || applicationVersionDTO == null) {
-            Messages.showMessageDialog("请先关联一个平台应用", "系统错误", Messages.getWarningIcon());
-            new BindAppVersion(project);
             return;
         }
 
@@ -337,42 +337,6 @@ public class SelectElementDialog extends JDialog {
             return;
         }
 
-        String applicationDSL = buildAppDSLJson();
-
-        int isUpdateCode;
-        int projectType;
-        int isGenerateProject;
-
-//        int isUpdateCode = JOptionPane.showOptionDialog(this, "选择操作类型", "操作类型",
-//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-//                Messages.getInformationIcon(), new String[]{"同步局部代码", "初始化代码"}, "同步局部代码");
-//
-//        int projectType = JOptionPane.showOptionDialog(this, "选择项目架构", "项目架构",
-//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-//                Messages.getInformationIcon(), new String[]{"COLA-分层架构", "COLA-单体架构"}, "COLA-分层架构");
-//
-//        int isGenerateProject = JOptionPane.showOptionDialog(this, "项目框架生成", "项目框架",
-//                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-//                Messages.getInformationIcon(), new String[]{"跳过", "生成"}, "跳过");
-
-        // 操作类型
-        if (initCodeRadioButton.isSelected()) {
-            isUpdateCode = 1;
-        } else if (updateCodeRadioButton.isSelected()) {
-            isUpdateCode = 0;
-        } else {
-            isUpdateCode = 0;
-        }
-
-        // 项目架构
-        if (colaRadioButton.isSelected()) {
-            projectType = 0;
-        } else if (colaSingleRadioButton.isSelected()) {
-            projectType = 0;
-        } else {
-            projectType = 1;
-        }
-
         // 在用户点击 OK 按钮时保存配置信息
         if (config != null) {
             config.setInitCodeRadioButton(initCodeRadioButton.isSelected());
@@ -380,9 +344,38 @@ public class SelectElementDialog extends JDialog {
             config.setColaRadioButton(colaRadioButton.isSelected());
             config.setColaSingleRadioButton(colaSingleRadioButton.isSelected());
             config.setInitProjectStructCheckBox(isInitProjectStructCheckBox.isSelected());
-            // 保存其他的配置信息...
-        }
+            config.setOutPath(textFieldOutputPath.getText());
 
+            config.setOverrideProjectIdentity(textProjectIdentity.getText());
+            config.setOverrideProjectPackage(textProjectPackage.getText());
+            config.setOverrideProjectVersion(textProjectVersion.getText());
+
+            // 更新查询结果列表
+            ListModel<DomainDesignVersionDTO> domainListModel = listBindDomain.getModel();
+            List<DomainDesignVersionDTO> domainList = new ArrayList<>(domainListModel.getSize());
+            for (int i = 0; i < domainListModel.getSize(); i++) {
+                domainList.add(domainListModel.getElementAt(i));
+            }
+            config.setDomainList(domainList);
+
+            ListModel<BusinessSceneVersionDTO> businessListModel = listBindBusiness.getModel();
+            List<BusinessSceneVersionDTO> businessList = new ArrayList<>(businessListModel.getSize());
+            for (int i = 0; i < businessListModel.getSize(); i++) {
+                businessList.add(businessListModel.getElementAt(i));
+            }
+            config.setSceneList(businessList);
+
+            config.setDomainSelectedList(listBindDomain.getSelectedValuesList());
+            config.setSceneSelectedList(listBindBusiness.getSelectedValuesList());
+
+            dispose();
+        }
+    }
+
+    private void onOK() {
+
+        // 保存配置信息
+        onSave();
 
         int isStart = JOptionPane.showOptionDialog(this, "是否开始执行", "执行",
                 JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
@@ -391,104 +384,13 @@ public class SelectElementDialog extends JDialog {
             return;
         }
 
-        CodeGenerateService codeGenerateService = new CodeGenerateService(applicationDSL);
-        TemplateContext templateContext = new TemplateContext(outPath);
-        templateContext.setIsGenerateProjectFrame(isInitProjectStructCheckBox.isSelected());
-        templateContext.setProjectTemplateType(projectType == 0 ? ProjectTemplateType.COLA : ProjectTemplateType.COLA_SINGLE);
-        templateContext.setOperationTypeEnum(isUpdateCode == 0 ? GenerateOperationTypeEnum.UPDATE_CODE : GenerateOperationTypeEnum.INIT_CODE);
-
-        TemplateVisitor templateVisitor = new TemplateVisitor(templateContext);
-        try {
-            codeGenerateService.run(templateVisitor);
-            Messages.showMessageDialog("代码生成完成！", "执行成功", Messages.getInformationIcon());
-        } catch (Exception e) {
-            Messages.showMessageDialog(e.getMessage(), "代码生成服务异常", Messages.getErrorIcon());
-        } finally {
-            dispose();
-            VirtualFileManager.getInstance().syncRefresh();
-        }
-    }
-
-    private String buildAppDSLJson() {
-        applicationDTO.setIdentity(textProjectIdentity.getText());
-        applicationDTO.setPackageName(textProjectPackage.getText());
-        applicationVersionDTO.setCurrentVersion(textProjectVersion.getText());
-
-        AppDSLBuilder appDSLBuilder = new AppDSLBuilder();
-        appDSLBuilder.buildAppInfo(applicationDTO);
-        appDSLBuilder.buildAppVersionInfo(applicationVersionDTO);
-        return buildApplicationDSL(appDSLBuilder.getApplicationJson());
-    }
-
-    private String buildApplicationDSL(JSONObject applicationJson) {
-        String mail;
-        String password;
-
-        LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
-        mail = instance.getAccount();
-        password = instance.catchPassword();
-        if (StringUtils.isBlank(mail) || StringUtils.isBlank(password)) {
-            Messages.showMessageDialog(this, "请先登录", "系统警告", Messages.getWarningIcon());
-        }
-        new LoginService().login(mail, password);
-
-        List<DomainDesignVersionDTO> domainDesignVersionDTO = listBindDomain.getSelectedValuesList();
-        List<BusinessSceneVersionDTO> businessSceneVersionDTOList = listBindBusiness.getSelectedValuesList();
-
-        JSONArray domainDesignArray = JSONUtil.createArray();
-        for (DomainDesignVersionDTO domainDesignVersion : domainDesignVersionDTO) {
-            JSONObject domainDesignJson = JSONUtil.parseObj(domainDesignVersion.getDomainDesignDsl());
-            domainDesignArray.add(domainDesignJson);
-
-            DomainDesignDTO domainDesignDTO = new QueryDomainInfoService().queryByDomainId(domainDesignVersion.getDomainDesignId());
-            domainDesignJson.putAll(getDomainDesignInfoMap(domainDesignVersion, domainDesignDTO));
-        }
-
-        JSONArray businessSceneArray = JSONUtil.createArray();
-        for (BusinessSceneVersionDTO businessSceneVersionDTO : businessSceneVersionDTOList) {
-            JSONObject domainDesignJson = JSONUtil.parseObj(businessSceneVersionDTO.getDsl());
-            businessSceneArray.add(domainDesignJson);
-
-            BusinessSceneDTO businessSceneDTO = new QueryBusinessInfoService().queryByBusinessId(businessSceneVersionDTO.getBusinessSceneId());
-            domainDesignJson.putAll(getBusinessSceneInfoMap(businessSceneVersionDTO, businessSceneDTO));
-        }
-
-        applicationJson.remove("businessDomains");
-        applicationJson.remove("businessScenarios");
-        applicationJson.putOnce("businessDomains", domainDesignArray);
-        applicationJson.putOnce("businessScenarios", businessSceneArray);
-
-        return applicationJson.toString();
-    }
-
-    private static Map<String, Object> getDomainDesignInfoMap(DomainDesignVersionDTO domainDesignVersionDO, DomainDesignDTO domainDesignDO) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", domainDesignDO.getIdentity());
-        map.put("title", domainDesignDO.getName());
-        map.put("description", domainDesignDO.getDescription());
-        map.put("version", domainDesignVersionDO.getCurrentVersion());
-        return map;
-    }
-
-    private static Map<String, Object> getBusinessSceneInfoMap(BusinessSceneVersionDTO businessSceneVersionDO, BusinessSceneDTO businessSceneDO) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("name", businessSceneDO.getIdentity());
-        map.put("title", businessSceneDO.getName());
-        map.put("description", businessSceneDO.getDescription());
-        map.put("version", businessSceneVersionDO.getCurrentVersion());
-        return map;
+        // 执行代码生成
+        new GenerateCodeService(project).execute();
+        dispose();
     }
 
     private void onCancel() {
         dispose();
-    }
-
-    public static void main(String[] args) {
-        SelectElementDialog dialog = new SelectElementDialog(null);
-        dialog.setSize(650, 400);
-        dialog.setTitle("代码生成器");
-        dialog.setLocationRelativeTo(null);
-        dialog.setVisible(true);
     }
 
     /**

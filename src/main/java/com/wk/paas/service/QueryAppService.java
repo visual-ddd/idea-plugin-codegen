@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class QueryAppService {
 
-    public static final String API_LOGIN = PlatformServiceConfig.HOST + "/wd/visual/web/application/application-page-query?";
+    public static final String API_LOGIN = PlatformServiceConfig.URL_PREFIX + "/web/application/application-page-query?";
 
     public List<ApplicationDTO> queryByTeamId(String teamId) {
         Map<String, String> heads = new HashMap<>();

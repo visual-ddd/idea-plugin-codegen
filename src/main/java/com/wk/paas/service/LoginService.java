@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class LoginService {
 
-    public static final String API_LOGIN = PlatformServiceConfig.HOST + "/api/login";
+    public static final String API_LOGIN = PlatformServiceConfig.URL_PREFIX + "/web/account/login/login";
 
     public Boolean login(String mailText, String passwordText) {
 
