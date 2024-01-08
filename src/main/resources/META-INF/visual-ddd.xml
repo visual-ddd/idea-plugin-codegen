@@ -40,11 +40,4 @@
         </popupMenu>
     </extensions>
 
-    <!--  快捷键  -->
-    <keymap name="Custom Keymap" parent="$default">
-        <action id="action.GenerateCodeAction" class="com.wk.paas.action.GenerateCodeAction"/>
-        <keyboard-shortcut first-keystroke="control shift G"
-                           second-keystroke="control shift G"/>
-    </keymap>
-
 </idea-plugin>
