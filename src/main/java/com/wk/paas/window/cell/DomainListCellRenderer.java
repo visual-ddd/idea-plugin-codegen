@@ -31,7 +31,6 @@ public class DomainListCellRenderer extends JCheckBox implements ListCellRendere
             setText("<html><b>名称:</b> " + domainDesignDTO.getName() +
                     "<br/><b>版本号:</b> " + value.getCurrentVersion() +
                     "<html/>");
-            setFont(getFont().deriveFont(Font.BOLD));
             setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
             setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
             setSelected(isSelected);

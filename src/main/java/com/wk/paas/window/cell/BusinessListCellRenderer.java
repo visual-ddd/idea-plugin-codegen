@@ -31,7 +31,6 @@ public class BusinessListCellRenderer extends JCheckBox implements ListCellRende
             setText("<html>名称：" + businessSceneDTO.getName() +
                     "<br/>版本号：" + value.getCurrentVersion() +
                     "<html/>");
-            setFont(getFont().deriveFont(Font.BOLD));
             setBackground(isSelected ? list.getSelectionBackground() : list.getBackground());
             setForeground(isSelected ? list.getSelectionForeground() : list.getForeground());
             setSelected(isSelected);
