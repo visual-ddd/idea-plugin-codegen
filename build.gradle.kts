@@ -26,6 +26,7 @@ repositories {
     maven {
         setUrl("https://maven.aliyun.com/nexus/content/groups/public/")
         setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
+        setUrl("https://maven.pkg.github.com/visual-ddd/ddd-code-chatgpt")
     }
     mavenCentral()
     gradlePluginPortal()
