@@ -26,7 +26,13 @@ repositories {
     maven {
         setUrl("https://maven.aliyun.com/nexus/content/groups/public/")
         setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
+    }
+    maven {
         setUrl("https://maven.pkg.github.com/visual-ddd/ddd-code-generator")
+        credentials {
+            username = System.getenv("USERNAME")
+            password = System.getenv("TOKEN")
+        }
     }
     mavenCentral()
     gradlePluginPortal()
