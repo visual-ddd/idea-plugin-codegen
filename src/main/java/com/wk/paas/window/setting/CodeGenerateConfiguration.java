@@ -23,6 +23,10 @@ public class CodeGenerateConfiguration implements PersistentStateComponent<CodeG
     private boolean isInitProjectStructCheckBox;
     private String outPath;
 
+
+    private Boolean isOverrideProjectIdentity;
+    private Boolean isOverrideProjectPackage;
+    private Boolean isOverrideProjectVersion;
     private String overrideProjectIdentity;
     private String overrideProjectPackage;
     private String overrideProjectVersion;

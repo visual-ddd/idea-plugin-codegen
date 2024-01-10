@@ -21,6 +21,7 @@ import com.wk.paas.window.setting.LoginAccountInfoSettings;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.swing.*;
 import java.util.*;
 
 public class GenerateCodeService {
@@ -38,7 +39,7 @@ public class GenerateCodeService {
         ApplicationVersionDTO applicationVersionDTO = projectConfig.getApplicationVersionDTO();
         if (applicationDTO == null || applicationVersionDTO == null) {
             Messages.showMessageDialog("请先关联一个平台应用", "系统警告", Messages.getWarningIcon());
-            new BindAppVersion(project);
+            SwingUtilities.invokeLater(() -> new BindAppVersion(project));
             return;
         }
 
@@ -46,7 +47,7 @@ public class GenerateCodeService {
         CodeGenerateConfiguration config = CodeGenerateConfiguration.getInstance(project);
         if (config == null) {
             Messages.showMessageDialog("请先配置生成信息", "系统警告", Messages.getWarningIcon());
-            new SelectElementDialog(project);
+            SwingUtilities.invokeLater(() -> new SelectElementDialog(project));
             return;
         }
 
@@ -54,7 +55,7 @@ public class GenerateCodeService {
         List<BusinessSceneVersionDTO> sceneSelectedList = config.getSceneSelectedList();
         if (CollectionUtils.isEmpty(domainSelectedList) && CollectionUtils.isEmpty(sceneSelectedList)) {
             Messages.showMessageDialog("至少选择一个生成的模块", "系统警告", Messages.getWarningIcon());
-            new SelectElementDialog(project);
+            SwingUtilities.invokeLater(() -> new SelectElementDialog(project));
             return;
         }
 

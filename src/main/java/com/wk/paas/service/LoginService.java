@@ -19,7 +19,6 @@ public class LoginService {
         JSONObject jsonObject = JSONUtil.createObj();
         jsonObject.set("accountNo", mailText);
         jsonObject.set("password", passwordText);
-        System.out.println(jsonObject);
 
         Map<String, String> heads = new HashMap<>();
         heads.put("Content-Type", "application/json;charset=UTF-8");

@@ -39,7 +39,6 @@ import java.util.stream.IntStream;
 public class SelectElementDialog extends JDialog {
 
     private final Project project;
-    private CodeGenerateConfiguration config;
 
     private JPanel contentPane;
     private JButton buttonOK;
@@ -80,14 +79,42 @@ public class SelectElementDialog extends JDialog {
         ApplicationVersionDTO applicationVersionDTO = projectConfig.getApplicationVersionDTO();
         if (applicationDTO == null || applicationVersionDTO == null) {
             Messages.showMessageDialog("请先关联一个平台应用", "系统警告", Messages.getWarningIcon());
-            new BindAppVersion(project);
+            SwingUtilities.invokeLater(() -> {
+                new BindAppVersion(project);
+                updateListData();
+            });
             return;
         }
 
-        // 更新项目信息
+        // 重置项目信息
+        resetProjectInfo(applicationDTO, applicationVersionDTO);
+
+        loadDDDModelInfoList(applicationVersionDTO);
+
+    }
+
+    private void resetProjectInfo(ApplicationDTO applicationDTO, ApplicationVersionDTO applicationVersionDTO) {
         textProjectIdentity.setText(applicationDTO.getIdentity());
         textProjectPackage.setText(applicationDTO.getPackageName());
         textProjectVersion.setText(applicationVersionDTO.getCurrentVersion());
+
+        textProjectIdentity.setEnabled(false);
+        overrideIdentityCheckBox.setSelected(false);
+        textProjectPackage.setEnabled(false);
+        overridePackageCheckBox.setSelected(false);
+        textProjectVersion.setEnabled(false);
+        overrideVersionCheckBox.setSelected(false);
+    }
+
+    private void loadDDDModelInfoList(ApplicationVersionDTO applicationVersionDTO) {
+        LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
+        String mail = instance.getAccount();
+        String password = instance.catchPassword();
+        if (StringUtils.isBlank(mail) || StringUtils.isBlank(password)) {
+            Messages.showMessageDialog(this, "请先登录", "系统警告", Messages.getWarningIcon());
+            new LoginDialog();
+            return;
+        }
 
         ProgressDialog progressDialog = new ProgressDialog(SelectElementDialog.this, "准备加载平台模型...");
 
@@ -138,8 +165,8 @@ public class SelectElementDialog extends JDialog {
         };
 
         worker.execute();
+        progressDialog.setAlwaysOnTop(true);
         progressDialog.setVisible(true);
-
     }
 
     public SelectElementDialog(Project project) {
@@ -157,75 +184,6 @@ public class SelectElementDialog extends JDialog {
         ButtonGroup buttonGroup2 = new ButtonGroup();
         buttonGroup2.add(colaRadioButton);
         buttonGroup2.add(colaSingleRadioButton);
-
-
-        // 配置信息
-        String overrideProjectIdentity = null;
-        String overrideProjectPackage = null;
-        String overrideProjectVersion = null;
-
-        config = CodeGenerateConfiguration.getInstance(project);
-        if (config != null) {
-            initCodeRadioButton.setSelected(config.isInitCodeRadioButton());
-            updateCodeRadioButton.setSelected(config.isUpdateCodeRadioButton());
-            colaRadioButton.setSelected(config.isColaRadioButton());
-            colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
-            isInitProjectStructCheckBox.setSelected(config.isInitProjectStructCheckBox());
-            textFieldOutputPath.setText(config.getOutPath());
-
-            DefaultListModel<DomainDesignVersionDTO> domainListModel = new DefaultListModel<>();
-            Optional.ofNullable(config.getDomainList())
-                    .ifPresent(domainList -> domainList.forEach(domainListModel::addElement));
-            listBindDomain.setModel(domainListModel);
-
-            DefaultListModel<BusinessSceneVersionDTO> sceneListModel = new DefaultListModel<>();
-            Optional.ofNullable(config.getSceneList())
-                    .ifPresent(sceneList -> sceneList.forEach(sceneListModel::addElement));
-            listBindBusiness.setModel(sceneListModel);
-
-
-            Optional.ofNullable(config.getDomainSelectedList())
-                    .ifPresent(selectedDomainList -> {
-                        ListModel<DomainDesignVersionDTO> model = listBindDomain.getModel();
-                        int[] selectedIndices = IntStream.range(0, model.getSize())
-                                .filter(i -> selectedDomainList.contains(model.getElementAt(i)))
-                                .toArray();
-                        if (selectedIndices.length > 0) {
-                            listBindDomain.getSelectionModel().setSelectionInterval(selectedIndices[0], selectedIndices[selectedIndices.length - 1]);
-                        }
-                    });
-
-
-            Optional.ofNullable(config.getSceneSelectedList())
-                    .ifPresent(selectedSceneList -> {
-                        int[] selectedIndices = IntStream.range(0, listBindBusiness.getModel().getSize())
-                                .filter(i -> selectedSceneList.contains(listBindBusiness.getModel().getElementAt(i)))
-                                .toArray();
-                        if (selectedIndices.length > 0) {
-                            listBindBusiness.setSelectedIndices(selectedIndices);
-                        }
-                    });
-
-            overrideProjectIdentity = config.getOverrideProjectIdentity();
-            overrideProjectPackage = config.getOverrideProjectPackage();
-            overrideProjectVersion = config.getOverrideProjectVersion();
-        }
-
-        // 应用绑定信息
-        BindAppInfoSettings projectConfig = BindAppInfoSettings.getInstance(project);
-        ApplicationDTO applicationDTO;
-        ApplicationVersionDTO applicationVersionDTO;
-        if (projectConfig != null) {
-            applicationDTO = projectConfig.getApplicationDTO();
-            applicationVersionDTO = projectConfig.getApplicationVersionDTO();
-
-            textProjectIdentity.setText(overrideProjectIdentity == null ? applicationDTO.getIdentity() : overrideProjectIdentity);
-            textProjectPackage.setText(overrideProjectPackage == null ? applicationDTO.getPackageName() : overrideProjectPackage);
-            textProjectVersion.setText(overrideProjectVersion == null ? applicationVersionDTO.getCurrentVersion() : overrideProjectVersion);
-        } else {
-            applicationVersionDTO = null;
-            applicationDTO = null;
-        }
 
         buttonOK.addActionListener(e -> onOK());
         buttonCancel.addActionListener(e -> onCancel());
@@ -250,6 +208,7 @@ public class SelectElementDialog extends JDialog {
         listBindDomain.setCellRenderer(new DomainListCellRenderer());
         listBindBusiness.setCellRenderer(new BusinessListCellRenderer());
 
+        // 选择输出路径
         textFieldOutputPath.setText(project.getBasePath());
         pathButton.addActionListener(e -> {
             File selectedDirectory = null;
@@ -269,37 +228,131 @@ public class SelectElementDialog extends JDialog {
                 textFieldOutputPath.setText(file.getAbsolutePath());
             }
         });
+
+        // 重写应用信息动作监听
         overrideIdentityCheckBox.addActionListener(e -> {
+            BindAppInfoSettings projectConfig = BindAppInfoSettings.getInstance(project);
+            CodeGenerateConfiguration config = CodeGenerateConfiguration.getInstance(project);
             if (overrideIdentityCheckBox.isSelected()) {
+                textProjectIdentity.setText(config.getOverrideProjectIdentity());
                 textProjectIdentity.setEnabled(true);
             } else {
-                String text = Optional.ofNullable(applicationDTO).map(ApplicationDTO::getIdentity).orElse(StringUtils.EMPTY);
-                textProjectIdentity.setText(text);
+                textProjectIdentity.setText(Optional.ofNullable(projectConfig.getApplicationDTO()).map(ApplicationDTO::getIdentity).orElse(StringUtils.EMPTY));
                 textProjectIdentity.setEnabled(false);
             }
         });
         overridePackageCheckBox.addActionListener(e -> {
+            BindAppInfoSettings projectConfig = BindAppInfoSettings.getInstance(project);
+            CodeGenerateConfiguration config = CodeGenerateConfiguration.getInstance(project);
             if (overridePackageCheckBox.isSelected()) {
+                textProjectPackage.setText(config.getOverrideProjectPackage());
                 textProjectPackage.setEnabled(true);
             } else {
-                String text = Optional.ofNullable(applicationDTO).map(ApplicationDTO::getPackageName).orElse(StringUtils.EMPTY);
-                textProjectPackage.setText(text);
+                textProjectPackage.setText(Optional.ofNullable(projectConfig.getApplicationDTO()).map(ApplicationDTO::getPackageName).orElse(StringUtils.EMPTY));
                 textProjectPackage.setEnabled(false);
             }
         });
         overrideVersionCheckBox.addActionListener(e -> {
+            BindAppInfoSettings projectConfig = BindAppInfoSettings.getInstance(project);
+            CodeGenerateConfiguration config = CodeGenerateConfiguration.getInstance(project);
             if (overrideVersionCheckBox.isSelected()) {
+                textProjectVersion.setText(config.getOverrideProjectVersion());
                 textProjectVersion.setEnabled(true);
             } else {
-                String text = Optional.ofNullable(applicationVersionDTO).map(ApplicationVersionDTO::getCurrentVersion).orElse(StringUtils.EMPTY);
-                textProjectVersion.setText(text);
+                textProjectVersion.setText(Optional.ofNullable(projectConfig.getApplicationVersionDTO()).map(ApplicationVersionDTO::getCurrentVersion).orElse(StringUtils.EMPTY));
                 textProjectVersion.setEnabled(false);
             }
         });
+
 //        copyDSLButton.addActionListener(e -> {
 //            String appDSLJson = buildAppDSLJson();
 //            setClipboardString(appDSLJson);
 //        });
+
+        // 回显配置信息
+        displayConfig(project);
+
+        setTitle("代码生成器");
+        setSize(700, 600);
+        setLocationRelativeTo(null);
+        setAlwaysOnTop(true);
+        setVisible(true);
+    }
+
+    private void displayConfig(Project project) {
+        CodeGenerateConfiguration config = CodeGenerateConfiguration.getInstance(project);
+
+        initCodeRadioButton.setSelected(config.isInitCodeRadioButton());
+        updateCodeRadioButton.setSelected(config.isUpdateCodeRadioButton());
+        colaRadioButton.setSelected(config.isColaRadioButton());
+        colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
+        isInitProjectStructCheckBox.setSelected(config.isInitProjectStructCheckBox());
+        textFieldOutputPath.setText(config.getOutPath());
+
+        DefaultListModel<DomainDesignVersionDTO> domainListModel = new DefaultListModel<>();
+        Optional.ofNullable(config.getDomainList())
+                .ifPresent(domainList -> domainList.forEach(domainListModel::addElement));
+        listBindDomain.setModel(domainListModel);
+
+        DefaultListModel<BusinessSceneVersionDTO> sceneListModel = new DefaultListModel<>();
+        Optional.ofNullable(config.getSceneList())
+                .ifPresent(sceneList -> sceneList.forEach(sceneListModel::addElement));
+        listBindBusiness.setModel(sceneListModel);
+
+
+        Optional.ofNullable(config.getDomainSelectedList())
+                .ifPresent(selectedDomainList -> {
+                    ListModel<DomainDesignVersionDTO> model = listBindDomain.getModel();
+                    int[] selectedIndices = IntStream.range(0, model.getSize())
+                            .filter(i -> selectedDomainList.contains(model.getElementAt(i)))
+                            .toArray();
+                    if (selectedIndices.length > 0) {
+                        listBindDomain.getSelectionModel().setSelectionInterval(selectedIndices[0], selectedIndices[selectedIndices.length - 1]);
+                    }
+                });
+
+
+        Optional.ofNullable(config.getSceneSelectedList())
+                .ifPresent(selectedSceneList -> {
+                    int[] selectedIndices = IntStream.range(0, listBindBusiness.getModel().getSize())
+                            .filter(i -> selectedSceneList.contains(listBindBusiness.getModel().getElementAt(i)))
+                            .toArray();
+                    if (selectedIndices.length > 0) {
+                        listBindBusiness.setSelectedIndices(selectedIndices);
+                    }
+                });
+
+        // 回显应用绑定信息
+        displayBoundAppInfo(project, config);
+    }
+
+    private void displayBoundAppInfo(Project project, CodeGenerateConfiguration config) {
+        BindAppInfoSettings projectConfig = BindAppInfoSettings.getInstance(project);
+
+        String identity = Optional.ofNullable(projectConfig.getApplicationDTO()).map(ApplicationDTO::getIdentity).orElse(StringUtils.EMPTY);
+        String packageName = Optional.ofNullable(projectConfig.getApplicationDTO()).map(ApplicationDTO::getPackageName).orElse(StringUtils.EMPTY);
+        String currentVersion = Optional.ofNullable(projectConfig.getApplicationVersionDTO()).map(ApplicationVersionDTO::getCurrentVersion).orElse(StringUtils.EMPTY);
+
+        String overrideProjectIdentity = config.getOverrideProjectIdentity();
+        String overrideProjectPackage = config.getOverrideProjectPackage();
+        String overrideProjectVersion = config.getOverrideProjectVersion();
+
+        textProjectIdentity.setText(StringUtils.isEmpty(overrideProjectIdentity) ? identity : overrideProjectIdentity);
+        textProjectPackage.setText(StringUtils.isEmpty(overrideProjectPackage) ? packageName : overrideProjectPackage);
+        textProjectVersion.setText(StringUtils.isEmpty(overrideProjectVersion) ? currentVersion : overrideProjectVersion);
+
+        Optional.ofNullable(config.getIsOverrideProjectIdentity()).ifPresent(x -> {
+            overrideIdentityCheckBox.setSelected(x);
+            textProjectIdentity.setEnabled(x);
+        });
+        Optional.ofNullable(config.getIsOverrideProjectPackage()).ifPresent(x -> {
+            overridePackageCheckBox.setSelected(x);
+            textProjectPackage.setEnabled(x);
+        });
+        Optional.ofNullable(config.getIsOverrideProjectVersion()).ifPresent(x -> {
+            overrideVersionCheckBox.setSelected(x);
+            textProjectVersion.setEnabled(x);
+        });
     }
 
     private void onRefresh() {
@@ -313,8 +366,10 @@ public class SelectElementDialog extends JDialog {
     }
 
     private void onBindProject() {
-        new BindAppVersion(project);
-        updateListData();
+        SwingUtilities.invokeLater(() -> {
+            new BindAppVersion(project);
+            updateListData();
+        });
     }
 
     private void onSave() {
@@ -338,38 +393,40 @@ public class SelectElementDialog extends JDialog {
         }
 
         // 在用户点击 OK 按钮时保存配置信息
-        if (config != null) {
-            config.setInitCodeRadioButton(initCodeRadioButton.isSelected());
-            config.setUpdateCodeRadioButton(updateCodeRadioButton.isSelected());
-            config.setColaRadioButton(colaRadioButton.isSelected());
-            config.setColaSingleRadioButton(colaSingleRadioButton.isSelected());
-            config.setInitProjectStructCheckBox(isInitProjectStructCheckBox.isSelected());
-            config.setOutPath(textFieldOutputPath.getText());
+        CodeGenerateConfiguration config = CodeGenerateConfiguration.getInstance(project);
+        config.setInitCodeRadioButton(initCodeRadioButton.isSelected());
+        config.setUpdateCodeRadioButton(updateCodeRadioButton.isSelected());
+        config.setColaRadioButton(colaRadioButton.isSelected());
+        config.setColaSingleRadioButton(colaSingleRadioButton.isSelected());
+        config.setInitProjectStructCheckBox(isInitProjectStructCheckBox.isSelected());
+        config.setOutPath(textFieldOutputPath.getText());
 
-            config.setOverrideProjectIdentity(textProjectIdentity.getText());
-            config.setOverrideProjectPackage(textProjectPackage.getText());
-            config.setOverrideProjectVersion(textProjectVersion.getText());
+        config.setOverrideProjectIdentity(textProjectIdentity.getText());
+        config.setOverrideProjectPackage(textProjectPackage.getText());
+        config.setOverrideProjectVersion(textProjectVersion.getText());
+        config.setIsOverrideProjectIdentity(overrideIdentityCheckBox.isSelected());
+        config.setIsOverrideProjectPackage(overridePackageCheckBox.isSelected());
+        config.setIsOverrideProjectVersion(overrideVersionCheckBox.isSelected());
 
-            // 更新查询结果列表
-            ListModel<DomainDesignVersionDTO> domainListModel = listBindDomain.getModel();
-            List<DomainDesignVersionDTO> domainList = new ArrayList<>(domainListModel.getSize());
-            for (int i = 0; i < domainListModel.getSize(); i++) {
-                domainList.add(domainListModel.getElementAt(i));
-            }
-            config.setDomainList(domainList);
-
-            ListModel<BusinessSceneVersionDTO> businessListModel = listBindBusiness.getModel();
-            List<BusinessSceneVersionDTO> businessList = new ArrayList<>(businessListModel.getSize());
-            for (int i = 0; i < businessListModel.getSize(); i++) {
-                businessList.add(businessListModel.getElementAt(i));
-            }
-            config.setSceneList(businessList);
-
-            config.setDomainSelectedList(listBindDomain.getSelectedValuesList());
-            config.setSceneSelectedList(listBindBusiness.getSelectedValuesList());
-
-            dispose();
+        // 更新查询结果列表
+        ListModel<DomainDesignVersionDTO> domainListModel = listBindDomain.getModel();
+        List<DomainDesignVersionDTO> domainList = new ArrayList<>(domainListModel.getSize());
+        for (int i = 0; i < domainListModel.getSize(); i++) {
+            domainList.add(domainListModel.getElementAt(i));
         }
+        config.setDomainList(domainList);
+
+        ListModel<BusinessSceneVersionDTO> businessListModel = listBindBusiness.getModel();
+        List<BusinessSceneVersionDTO> businessList = new ArrayList<>(businessListModel.getSize());
+        for (int i = 0; i < businessListModel.getSize(); i++) {
+            businessList.add(businessListModel.getElementAt(i));
+        }
+        config.setSceneList(businessList);
+
+        config.setDomainSelectedList(listBindDomain.getSelectedValuesList());
+        config.setSceneSelectedList(listBindBusiness.getSelectedValuesList());
+
+        dispose();
     }
 
     private void onOK() {

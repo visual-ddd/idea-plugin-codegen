@@ -28,16 +28,4 @@
         </group>
     </actions>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <!--  右键菜单  -->
-        <popupMenu id="EditorPopupMenu">
-            <group id="MyPopupMenuGroup" class="com.intellij.openapi.actionSystem.DefaultActionGroup"
-                   popup="true" text="Visual DDD">
-                <add-to-group group-id="EditorPopupMenu" anchor="last"/>
-                <action id="action.GenerateCodeAction" class="com.wk.paas.action.GenerateCodeAction"
-                        text="一键同步代码" icon="AllIcons.General.ExternalTools"/>
-            </group>
-        </popupMenu>
-    </extensions>
-
 </idea-plugin>

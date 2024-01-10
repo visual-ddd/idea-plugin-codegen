@@ -45,6 +45,7 @@ public class LoginDialog extends JDialog {
         setTitle("登录");
         setSize(400, 300);
         setLocationRelativeTo(null);
+        setAlwaysOnTop(true);
         setVisible(true);
     }
 
