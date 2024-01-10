@@ -15,10 +15,8 @@ import com.wk.paas.service.dto.ResultDTO;
  */
 public class QueryBusinessVersionService {
 
-    public static final String API_LOGIN = PlatformServiceConfig.URL_PREFIX + "/web/business-scene-version/business-scene-version-detail-query?";
-
     public BusinessSceneVersionDTO queryById(Long id) {
-        HttpRequest httpRequest = HttpRequest.get(API_LOGIN.concat("id=").concat(String.valueOf(id)));
+        HttpRequest httpRequest = HttpRequest.get(PlatformServiceConfig.getUrlPrefix() + "/web/business-scene-version/business-scene-version-detail-query?".concat("id=").concat(String.valueOf(id)));
 
         HttpResponse response;
         try {

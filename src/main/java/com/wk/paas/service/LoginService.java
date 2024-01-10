@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class LoginService {
 
-    public static final String API_LOGIN = PlatformServiceConfig.URL_PREFIX + "/web/account/login/login";
+    public static final String API_LOGIN = "/web/account/login/login";
 
     public Boolean login(String mailText, String passwordText) {
 
@@ -22,7 +22,7 @@ public class LoginService {
 
         Map<String, String> heads = new HashMap<>();
         heads.put("Content-Type", "application/json;charset=UTF-8");
-        HttpRequest httpRequest = HttpRequest.post(API_LOGIN)
+        HttpRequest httpRequest = HttpRequest.post(PlatformServiceConfig.getUrlPrefix() + API_LOGIN)
                 .headerMap(heads, false)
                 .body(String.valueOf(jsonObject))
                 .timeout(3 * 1000);

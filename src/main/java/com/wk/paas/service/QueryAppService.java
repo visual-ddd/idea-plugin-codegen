@@ -16,12 +16,10 @@ import java.util.Map;
 
 public class QueryAppService {
 
-    public static final String API_LOGIN = PlatformServiceConfig.URL_PREFIX + "/web/application/application-page-query?";
-
     public List<ApplicationDTO> queryByTeamId(String teamId) {
         Map<String, String> heads = new HashMap<>();
         heads.put("Content-Type", "application/json;charset=UTF-8");
-        HttpRequest httpRequest = HttpRequest.get(API_LOGIN.concat("teamId=").concat(teamId))
+        HttpRequest httpRequest = HttpRequest.get((PlatformServiceConfig.getUrlPrefix() + "/web/application/application-page-query?").concat("teamId=").concat(teamId))
                 .headerMap(heads, false)
                 .timeout(3 * 1000);
         HttpResponse response;
@@ -39,11 +37,5 @@ public class QueryAppService {
             throw new IllegalStateException(resultDTO.getMsg());
         }
         return resultDTO.getData();
-    }
-
-    public static void main(String[] args) {
-        new LoginService().login("1", "1");
-        List<ApplicationDTO> applicationDTOS = new QueryAppService().queryByTeamId("1");
-        System.out.println(applicationDTOS);
     }
 }

@@ -14,11 +14,11 @@ import java.util.List;
 
 public class QueryAppVersionService {
 
-    public static final String API_APPLICATION_VERSION_PAGE_QUERY = PlatformServiceConfig.URL_PREFIX + "/web/application-version/application-version-page-query?";
-    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = PlatformServiceConfig.URL_PREFIX + "/web/application-version/application-version-detail-query-exclude-dsl?";
+    public static final String API_APPLICATION_VERSION_PAGE_QUERY = "/web/application-version/application-version-page-query?";
+    public static final String API_APPLICATION_VERSION_DETAIL_QUERY = "/web/application-version/application-version-detail-query-exclude-dsl?";
 
     public List<ApplicationVersionDTO> queryByAppId(String appId) {
-        HttpRequest httpRequest = HttpRequest.get(API_APPLICATION_VERSION_PAGE_QUERY.concat("applicationId=").concat(appId));
+        HttpRequest httpRequest = HttpRequest.get(PlatformServiceConfig.getUrlPrefix() + API_APPLICATION_VERSION_PAGE_QUERY.concat("applicationId=").concat(appId));
 
         HttpResponse response;
         try {
@@ -36,13 +36,8 @@ public class QueryAppVersionService {
         return resultDTO.getData();
     }
 
-    public static void main(String[] args) {
-        new LoginService().login("1", "1");
-        List<ApplicationVersionDTO> applicationDTOS = new QueryAppVersionService().queryByAppId("20");
-    }
-
     public ApplicationVersionDTO detailQuery(String appVersionId) {
-        HttpRequest httpRequest = HttpRequest.get(API_APPLICATION_VERSION_DETAIL_QUERY.concat("id=").concat(appVersionId));
+        HttpRequest httpRequest = HttpRequest.get(PlatformServiceConfig.getUrlPrefix() + API_APPLICATION_VERSION_DETAIL_QUERY.concat("id=").concat(appVersionId));
 
         HttpResponse response;
         try {

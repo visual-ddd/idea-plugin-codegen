@@ -15,10 +15,8 @@ import com.wk.paas.service.dto.ResultDTO;
  */
 public class QueryDomainVersionService {
 
-    public static final String API_LOGIN = PlatformServiceConfig.URL_PREFIX + "/web/domain-design-version/domain-design-version-detail-query?";
-
     public DomainDesignVersionDTO queryById(Long id) {
-        HttpRequest httpRequest = HttpRequest.get(API_LOGIN.concat("id=").concat(String.valueOf(id)));
+        HttpRequest httpRequest = HttpRequest.get((PlatformServiceConfig.getUrlPrefix() + "/web/domain-design-version/domain-design-version-detail-query?").concat("id=").concat(String.valueOf(id)));
 
         HttpResponse response;
         try {
