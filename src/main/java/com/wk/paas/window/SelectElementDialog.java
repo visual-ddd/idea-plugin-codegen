@@ -180,10 +180,14 @@ public class SelectElementDialog extends JDialog {
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(initCodeRadioButton);
         buttonGroup.add(updateCodeRadioButton);
+        initCodeRadioButton.setSelected(true);
 
         ButtonGroup buttonGroup2 = new ButtonGroup();
         buttonGroup2.add(colaRadioButton);
         buttonGroup2.add(colaSingleRadioButton);
+        colaRadioButton.setSelected(true);
+
+        isInitProjectStructCheckBox.setSelected(true);
 
         buttonOK.addActionListener(e -> onOK());
         buttonCancel.addActionListener(e -> onCancel());
