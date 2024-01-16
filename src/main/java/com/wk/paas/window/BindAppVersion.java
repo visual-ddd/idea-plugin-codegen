@@ -5,13 +5,13 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.wakedt.visual.client.organization.dto.TeamDTO;
 import com.wk.paas.service.LoginService;
 import com.wk.paas.service.QueryAppService;
 import com.wk.paas.service.QueryAppVersionService;
-import com.wk.paas.service.QueryTeamService;
+import com.wk.paas.service.QueryUserTeamService;
 import com.wk.paas.service.dto.ApplicationDTO;
 import com.wk.paas.service.dto.ApplicationVersionDTO;
-import com.wk.paas.service.dto.TeamDTO;
 import com.wk.paas.window.cell.AppListCellRenderer;
 import com.wk.paas.window.cell.AppVersionListCellRenderer;
 import com.wk.paas.window.cell.TeamListCellRenderer;
@@ -58,7 +58,7 @@ public class BindAppVersion extends JDialog {
         List<TeamDTO> teamDTOList;
         try {
             new LoginService().login(mail, password);
-            teamDTOList = new QueryTeamService().query();
+            teamDTOList = new QueryUserTeamService().query();
         } catch (Exception exception) {
             Messages.showMessageDialog(this, exception.getMessage(), "系统错误", Messages.getErrorIcon());
             return;

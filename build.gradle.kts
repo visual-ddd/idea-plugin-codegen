@@ -44,6 +44,7 @@ dependencies {
         exclude(group = "org.apache.velocity", module = "velocity-engine-core")
     }
 //    implementation("com.wakedata.common:wd-common-chatgpt:1.2.3-DDD34")
+    implementation("com.wakedt.visual:wd-visual-ddd-client:1.0.2-RC02")
     implementation("cn.hutool:hutool-all:5.8.12")
     compileOnly("org.projectlombok:lombok:1.18.26")
     annotationProcessor("org.projectlombok:lombok:1.18.26")
