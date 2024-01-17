@@ -5,9 +5,9 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.wakedt.visual.client.organization.dto.TeamDTO;
 import com.wk.paas.service.dto.ApplicationDTO;
 import com.wk.paas.service.dto.ApplicationVersionDTO;
+import com.wk.paas.service.dto.TeamDTO;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 

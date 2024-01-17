@@ -1,6 +1,6 @@
 package com.wk.paas.window.cell;
 
-import com.wakedt.visual.client.organization.dto.TeamDTO;
+import com.wk.paas.service.dto.TeamDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

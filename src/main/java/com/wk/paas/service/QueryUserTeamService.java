@@ -5,11 +5,11 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.intellij.openapi.ui.Messages;
-import com.wakedt.visual.client.organization.dto.TeamDTO;
-import com.wakedt.visual.client.user.dto.AccountRoleDTO;
-import com.wakedt.visual.client.user.dto.AccountTeamInfo;
 import com.wk.paas.config.PlatformServiceConfig;
+import com.wk.paas.service.dto.AccountRoleDTO;
+import com.wk.paas.service.dto.AccountTeamInfo;
 import com.wk.paas.service.dto.ResultDTO;
+import com.wk.paas.service.dto.TeamDTO;
 
 import java.util.ArrayList;
 import java.util.List;

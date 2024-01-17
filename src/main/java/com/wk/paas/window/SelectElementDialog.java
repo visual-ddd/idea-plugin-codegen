@@ -13,6 +13,7 @@ import com.wk.paas.service.dto.ApplicationDTO;
 import com.wk.paas.service.dto.ApplicationVersionDTO;
 import com.wk.paas.service.dto.BusinessSceneVersionDTO;
 import com.wk.paas.service.dto.DomainDesignVersionDTO;
+import com.wk.paas.util.FilePathUtils;
 import com.wk.paas.window.cell.BusinessListCellRenderer;
 import com.wk.paas.window.cell.DomainListCellRenderer;
 import com.wk.paas.window.setting.BindAppInfoSettings;
@@ -79,10 +80,6 @@ public class SelectElementDialog extends JDialog {
         ApplicationVersionDTO applicationVersionDTO = projectConfig.getApplicationVersionDTO();
         if (applicationDTO == null || applicationVersionDTO == null) {
             Messages.showMessageDialog("请先关联一个平台应用", "系统警告", Messages.getWarningIcon());
-            SwingUtilities.invokeLater(() -> {
-                new BindAppVersion(project);
-                updateListData();
-            });
             return;
         }
 
@@ -180,14 +177,10 @@ public class SelectElementDialog extends JDialog {
         ButtonGroup buttonGroup = new ButtonGroup();
         buttonGroup.add(initCodeRadioButton);
         buttonGroup.add(updateCodeRadioButton);
-        initCodeRadioButton.setSelected(true);
 
         ButtonGroup buttonGroup2 = new ButtonGroup();
         buttonGroup2.add(colaRadioButton);
         buttonGroup2.add(colaSingleRadioButton);
-        colaRadioButton.setSelected(true);
-
-        isInitProjectStructCheckBox.setSelected(true);
 
         buttonOK.addActionListener(e -> onOK());
         buttonCancel.addActionListener(e -> onCancel());
@@ -273,6 +266,9 @@ public class SelectElementDialog extends JDialog {
 //            setClipboardString(appDSLJson);
 //        });
 
+        // 初始化选项
+        init();
+
         // 回显配置信息
         displayConfig(project);
 
@@ -283,6 +279,13 @@ public class SelectElementDialog extends JDialog {
         setVisible(true);
     }
 
+    private void init() {
+        initCodeRadioButton.setSelected(true);
+        colaRadioButton.setSelected(true);
+        isInitProjectStructCheckBox.setSelected(true);
+        textFieldOutputPath.setText(FilePathUtils.getParentDirectory(project.getBasePath()));
+    }
+
     private void displayConfig(Project project) {
         CodeGenerateConfiguration config = CodeGenerateConfiguration.getInstance(project);
 
@@ -290,8 +293,8 @@ public class SelectElementDialog extends JDialog {
         updateCodeRadioButton.setSelected(config.isUpdateCodeRadioButton());
         colaRadioButton.setSelected(config.isColaRadioButton());
         colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
-        isInitProjectStructCheckBox.setSelected(config.isInitProjectStructCheckBox());
-        textFieldOutputPath.setText(config.getOutPath());
+        Optional.of(config.isInitProjectStructCheckBox()).ifPresent(x -> isInitProjectStructCheckBox.setSelected(x));
+        Optional.ofNullable(config.getOutPath()).ifPresent(x -> textFieldOutputPath.setText(x));
 
         DefaultListModel<DomainDesignVersionDTO> domainListModel = new DefaultListModel<>();
         Optional.ofNullable(config.getDomainList())
