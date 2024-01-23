@@ -27,12 +27,19 @@ repositories {
         setUrl("https://maven.aliyun.com/nexus/content/groups/public/")
         setUrl("https://oss.sonatype.org/content/repositories/snapshots/")
     }
+    maven {
+        setUrl("https://maven.pkg.github.com/visual-ddd/ddd-code-generator")
+        credentials {
+            username = System.getenv("USERNAME")
+            password = System.getenv("TOKEN")
+        }
+    }
     mavenCentral()
     gradlePluginPortal()
 }
 
 dependencies {
-    implementation("com.wd.paas:wd-generator-core:3.0.0-SNAPSHOT") {
+    implementation("com.wd.paas:wd-generator-core:4.0.1-RC02") {
         exclude(group = "org.apache.velocity", module = "velocity")
         exclude(group = "org.apache.velocity", module = "velocity-engine-core")
     }

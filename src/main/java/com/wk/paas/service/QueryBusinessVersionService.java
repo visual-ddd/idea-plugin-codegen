@@ -5,15 +5,18 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import com.wk.paas.config.PlatformServiceConfig;
-import com.wk.paas.service.dto.DomainDesignDTO;
+import com.wk.paas.service.dto.BusinessSceneVersionDTO;
 import com.wk.paas.service.dto.ResultDTO;
 
-public class QueryDomainInfoService {
+/**
+ * 查询业务场景版本
+ *
+ * @author shimmer
+ */
+public class QueryBusinessVersionService {
 
-    public static final String API_LOGIN = PlatformServiceConfig.HOST + "/wd/visual/web/domain-design/domain-design-detail-query?";
-
-    public DomainDesignDTO queryByDomainId(Long id) {
-        HttpRequest httpRequest = HttpRequest.get(API_LOGIN.concat("id=").concat(String.valueOf(id)));
+    public BusinessSceneVersionDTO queryById(Long id) {
+        HttpRequest httpRequest = HttpRequest.get(PlatformServiceConfig.getUrlPrefix() + "/web/business-scene-version/business-scene-version-detail-query?".concat("id=").concat(String.valueOf(id)));
 
         HttpResponse response;
         try {
@@ -23,7 +26,8 @@ public class QueryDomainInfoService {
         }
         String result = response.body();
 
-        ResultDTO<DomainDesignDTO> resultDTO = JSONUtil.toBean(result, new TypeReference<ResultDTO<DomainDesignDTO>>() {}.getType(), true);
+        ResultDTO<BusinessSceneVersionDTO> resultDTO = JSONUtil.toBean(result, new TypeReference<ResultDTO<BusinessSceneVersionDTO>>() {
+        }.getType(), true);
         if (!resultDTO.isSuccess()) {
             throw new IllegalStateException(resultDTO.getMsg());
         }

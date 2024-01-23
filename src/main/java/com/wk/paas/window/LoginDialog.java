@@ -17,6 +17,8 @@ public class LoginDialog extends JDialog {
     private JButton buttonCancel;
     private JTextField textFieldPassword;
     private JTextField textFieldMail;
+    private JTextField textFieldHost;
+    private JLabel titleLabel;
 
     public LoginDialog() {
         setContentPane(contentPane);
@@ -41,16 +43,22 @@ public class LoginDialog extends JDialog {
         LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
         textFieldMail.setText(instance.getAccount());
         textFieldPassword.setText(instance.catchPassword());
+        textFieldHost.setText(instance.getHost());
 
         setTitle("登录");
-        setSize(400, 300);
+        setSize(500, 350);
         setLocationRelativeTo(null);
+        setAlwaysOnTop(true);
         setVisible(true);
     }
 
     private void onOK() {
         String mailText = this.textFieldMail.getText();
         String passwordText = this.textFieldPassword.getText();
+        String host = textFieldHost.getText();
+
+        LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
+        instance.setHost(host);
 
         if (StringUtils.isBlank(mailText) || StringUtils.isBlank(passwordText)) {
             JOptionPane.showMessageDialog(this, "账号和密码不能为空！", "参数错误", JOptionPane.WARNING_MESSAGE);
@@ -70,7 +78,6 @@ public class LoginDialog extends JDialog {
 
         JOptionPane.showMessageDialog(this, "成功！", "登录成功", JOptionPane.INFORMATION_MESSAGE);
 
-        LoginAccountInfoSettings instance = LoginAccountInfoSettings.getInstance();
         instance.setAccount(mailText);
         instance.storePassword(passwordText);
 

@@ -8,6 +8,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import com.wk.paas.config.PlatformServiceConfig;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -20,8 +21,9 @@ import org.jetbrains.annotations.NotNull;
 public class LoginAccountInfoSettings implements PersistentStateComponent<LoginAccountInfoSettings> {
 
     private String account;
+    private String host;
 
-    public static LoginAccountInfoSettings getInstance(){
+    public static LoginAccountInfoSettings getInstance() {
         return ServiceManager.getService(LoginAccountInfoSettings.class);
     }
 
@@ -45,11 +47,15 @@ public class LoginAccountInfoSettings implements PersistentStateComponent<LoginA
         return new CredentialAttributes(CredentialAttributesKt.generateServiceName("Login", account));
     }
 
+    public String getHost() {
+        return host == null ? PlatformServiceConfig.DefaultHost : host;
+    }
+
     @Override
     public LoginAccountInfoSettings getState() {
         return this;
     }
- 
+
     @Override
     public void loadState(@NotNull LoginAccountInfoSettings optionalSettings) {
         XmlSerializerUtil.copyBean(optionalSettings, this);

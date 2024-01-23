@@ -11,9 +11,10 @@
     <!--        <toolWindow id="VisualDDD" anchor="right" factoryClass="com.wk.paas.menu.OpenToolWindowMainMenu"/>-->
     <!--    </extensions>-->
 
+    <!--  顶部菜单栏  -->
     <actions>
         <group id="com.wk.paas.action.CustomDefaultActionGroup" class="com.wk.paas.action.CustomDefaultActionGroup"
-               text="DDD可视化开发平台" popup="true">
+               text="Visual DDD" popup="true">
             <add-to-group group-id="MainMenu" anchor="last"/>
             <action id="action.LoginAction" class="com.wk.paas.action.LoginAction"
                     text="登录" icon="AllIcons.Ide.HectorOn"/>
@@ -22,6 +23,8 @@
                     text="打开平台关联配置" icon="AllIcons.General.Settings"/>
             <action id="action.OpenCodeGenToolAction" class="com.wk.paas.action.OpenCodeGenToolAction"
                     text="打开代码生成工具" icon="AllIcons.General.ExternalTools"/>
+            <action id="action.GenerateCodeAction" class="com.wk.paas.action.GenerateCodeAction"
+                    text="一键同步代码" icon="AllIcons.General.ExternalTools"/>
         </group>
     </actions>
 

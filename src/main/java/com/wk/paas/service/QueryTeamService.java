@@ -14,10 +14,8 @@ import java.util.List;
 
 public class QueryTeamService {
 
-    public static final String API_TEAM_QUERY = PlatformServiceConfig.HOST + "/wd/visual/web/team/team-page-query";
-
     public List<TeamDTO> query() {
-        HttpRequest httpRequest = HttpRequest.get(API_TEAM_QUERY);
+        HttpRequest httpRequest = HttpRequest.get(PlatformServiceConfig.getUrlPrefix() + "/web/team/team-page-query");
         HttpResponse response;
         try {
             response = httpRequest.execute();

@@ -8,7 +8,7 @@ import com.intellij.uiDesigner.core.Spacer;
 import com.wk.paas.service.LoginService;
 import com.wk.paas.service.QueryAppService;
 import com.wk.paas.service.QueryAppVersionService;
-import com.wk.paas.service.QueryTeamService;
+import com.wk.paas.service.QueryUserTeamService;
 import com.wk.paas.service.dto.ApplicationDTO;
 import com.wk.paas.service.dto.ApplicationVersionDTO;
 import com.wk.paas.service.dto.TeamDTO;
@@ -29,9 +29,6 @@ import java.util.Optional;
 
 public class BindAppVersion extends JDialog {
 
-    private TeamListCellRenderer teamListCellRenderer;
-    private AppListCellRenderer appListCellRenderer;
-    private AppVersionListCellRenderer appVersionListCellRenderer;
     private final DefaultComboBoxModel<TeamDTO> teamInfos = new DefaultComboBoxModel<>();
     private final DefaultComboBoxModel<ApplicationDTO> appInfos = new DefaultComboBoxModel<>();
     private final DefaultComboBoxModel<ApplicationVersionDTO> appVersionInfos = new DefaultComboBoxModel<>();
@@ -61,7 +58,7 @@ public class BindAppVersion extends JDialog {
         List<TeamDTO> teamDTOList;
         try {
             new LoginService().login(mail, password);
-            teamDTOList = new QueryTeamService().query();
+            teamDTOList = new QueryUserTeamService().query();
         } catch (Exception exception) {
             Messages.showMessageDialog(this, exception.getMessage(), "系统错误", Messages.getErrorIcon());
             return;
@@ -118,24 +115,27 @@ public class BindAppVersion extends JDialog {
         // call onCancel() on ESCAPE
         contentPane.registerKeyboardAction(e -> onCancel(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
-        boxTeam.addItemListener(e -> {
+        boxTeam.addActionListener(e -> {
             boxApp.removeAllItems();
             boxAppVersion.removeAllItems();
-            TeamDTO selectedItem = (TeamDTO) e.getItem();
-            updateAppListData(selectedItem.getId());
+            int selectedIndex = boxTeam.getSelectedIndex();
+            if (selectedIndex >= 0) {
+                TeamDTO selectedItem = teamInfos.getElementAt(selectedIndex);
+                updateAppListData(selectedItem.getId());
+            }
         });
-        boxApp.addItemListener(e -> {
+        boxApp.addActionListener(e -> {
             boxAppVersion.removeAllItems();
-            ApplicationDTO selectedItem = (ApplicationDTO) e.getItem();
-            updateAppVersionListData(selectedItem.getId());
+            int selectedIndex = boxApp.getSelectedIndex();
+            if (selectedIndex >= 0) {
+                ApplicationDTO selectedItem = appInfos.getElementAt(selectedIndex);
+                updateAppVersionListData(selectedItem.getId());
+            }
         });
 
-        teamListCellRenderer = new TeamListCellRenderer();
-        appListCellRenderer = new AppListCellRenderer();
-        appVersionListCellRenderer = new AppVersionListCellRenderer();
-        boxTeam.setRenderer(teamListCellRenderer);
-        boxApp.setRenderer(appListCellRenderer);
-        boxAppVersion.setRenderer(appVersionListCellRenderer);
+        boxTeam.setRenderer(new TeamListCellRenderer());
+        boxApp.setRenderer(new AppListCellRenderer());
+        boxAppVersion.setRenderer(new AppVersionListCellRenderer());
 
         updateTeamListData();
 
@@ -146,31 +146,28 @@ public class BindAppVersion extends JDialog {
 
         setTitle("配置项目关联应用信息");
         pack();
+        setAlwaysOnTop(true);
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
     private void onOK() {
         BindAppInfoSettings bindAppInfoSettings = BindAppInfoSettings.getInstance(project);
-        Object teamSelectItem;
-        Object appSelectedItem;
-        Object appVersionSelectedItem;
         try {
-            teamSelectItem = Optional.ofNullable(boxTeam.getSelectedItem())
+            Object teamSelectItem = Optional.ofNullable(boxTeam.getSelectedItem())
                     .orElseThrow(() -> new IllegalStateException("请选择一个团队"));
-            appSelectedItem = Optional.ofNullable(boxApp.getSelectedItem())
+            Object appSelectedItem = Optional.ofNullable(boxApp.getSelectedItem())
                     .orElseThrow(() -> new IllegalStateException("请选择一个应用"));
-            appVersionSelectedItem = Optional.ofNullable(boxAppVersion.getSelectedItem())
+            Object appVersionSelectedItem = Optional.ofNullable(boxAppVersion.getSelectedItem())
                     .orElseThrow(() -> new IllegalStateException("请选择一个应用版本"));
+
+            bindAppInfoSettings.setTeamDTO((TeamDTO) teamSelectItem);
+            bindAppInfoSettings.setApplicationDTO((ApplicationDTO) appSelectedItem);
+            bindAppInfoSettings.setApplicationVersionDTO((ApplicationVersionDTO) appVersionSelectedItem);
         } catch (Exception e) {
             Messages.showMessageDialog(this, e.getMessage(), "系统警告", Messages.getWarningIcon());
             return;
         }
-
-        bindAppInfoSettings.setTeamDTO((TeamDTO) teamSelectItem);
-        bindAppInfoSettings.setApplicationDTO((ApplicationDTO) appSelectedItem);
-        bindAppInfoSettings.setApplicationVersionDTO((ApplicationVersionDTO) appVersionSelectedItem);
-
         dispose();
     }
 
