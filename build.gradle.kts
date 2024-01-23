@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.wd.paas:wd-generator-core:4.0.1-RC01") {
+    implementation("com.wd.paas:wd-generator-core:4.0.1-RC02") {
         exclude(group = "org.apache.velocity", module = "velocity")
         exclude(group = "org.apache.velocity", module = "velocity-engine-core")
     }
