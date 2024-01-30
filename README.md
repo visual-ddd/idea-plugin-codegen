@@ -1,5 +1,7 @@
 # VisualDDD
 
+[中文版本](README-ZH.md) | [English Version](README.md)
+
 <!-- Plugin description -->
 ## Development Cloud - VisualDDD (Visual Development Platform for Domain-Driven Design)
 
