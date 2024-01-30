@@ -1,5 +1,7 @@
 # VisualDDD
 
+[中文版本](README-ZH.md) | [English Version](README.md)
+
 <!-- Plugin description -->
 ## 开发云 - VisualDDD（DDD可视化开发平台）
 
