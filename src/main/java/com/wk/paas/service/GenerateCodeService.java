@@ -51,13 +51,13 @@ public class GenerateCodeService {
             return;
         }
 
-        List<DomainDesignVersionDTO> domainSelectedList = config.getDomainSelectedList();
-        List<BusinessSceneVersionDTO> sceneSelectedList = config.getSceneSelectedList();
-        if (CollectionUtils.isEmpty(domainSelectedList) && CollectionUtils.isEmpty(sceneSelectedList)) {
-            Messages.showMessageDialog("至少选择一个生成的模块", "系统警告", Messages.getWarningIcon());
-            SwingUtilities.invokeLater(() -> new SelectElementDialog(project));
-            return;
-        }
+//        List<DomainDesignVersionDTO> domainSelectedList = config.getDomainSelectedList();
+//        List<BusinessSceneVersionDTO> sceneSelectedList = config.getSceneSelectedList();
+//        if (CollectionUtils.isEmpty(domainSelectedList) && CollectionUtils.isEmpty(sceneSelectedList)) {
+//            Messages.showMessageDialog("至少选择一个生成的模块", "系统警告", Messages.getWarningIcon());
+//            SwingUtilities.invokeLater(() -> new SelectElementDialog(project));
+//            return;
+//        }
 
         String outputPathText = config.getOutPath();
         boolean isInitCode = config.isInitCodeRadioButton();
