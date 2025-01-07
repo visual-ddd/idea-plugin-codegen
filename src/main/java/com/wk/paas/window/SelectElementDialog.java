@@ -61,6 +61,7 @@ public class SelectElementDialog extends JDialog {
     private JCheckBox isInitProjectStructCheckBox;
     private JRadioButton colaRadioButton;
     private JRadioButton colaSingleRadioButton;
+    private JRadioButton colaSingleMvpRadioButton;
     private JButton saveButton;
     private JButton bindProjectButton;
 
@@ -181,6 +182,7 @@ public class SelectElementDialog extends JDialog {
         ButtonGroup buttonGroup2 = new ButtonGroup();
         buttonGroup2.add(colaRadioButton);
         buttonGroup2.add(colaSingleRadioButton);
+        buttonGroup2.add(colaSingleMvpRadioButton);
 
         buttonOK.addActionListener(e -> onOK());
         buttonCancel.addActionListener(e -> onCancel());
@@ -293,6 +295,7 @@ public class SelectElementDialog extends JDialog {
         updateCodeRadioButton.setSelected(config.isUpdateCodeRadioButton());
         colaRadioButton.setSelected(config.isColaRadioButton());
         colaSingleRadioButton.setSelected(config.isColaSingleRadioButton());
+        colaSingleMvpRadioButton.setSelected(config.isColaSingleMvpRadioButton());
         Optional.of(config.isInitProjectStructCheckBox()).ifPresent(x -> isInitProjectStructCheckBox.setSelected(x));
         Optional.ofNullable(config.getOutPath()).ifPresent(x -> textFieldOutputPath.setText(x));
 
@@ -405,6 +408,7 @@ public class SelectElementDialog extends JDialog {
         config.setUpdateCodeRadioButton(updateCodeRadioButton.isSelected());
         config.setColaRadioButton(colaRadioButton.isSelected());
         config.setColaSingleRadioButton(colaSingleRadioButton.isSelected());
+        config.setColaSingleMvpRadioButton(colaSingleMvpRadioButton.isSelected());
         config.setInitProjectStructCheckBox(isInitProjectStructCheckBox.isSelected());
         config.setOutPath(textFieldOutputPath.getText());
 

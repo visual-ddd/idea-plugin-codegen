@@ -20,6 +20,7 @@ public class CodeGenerateConfiguration implements PersistentStateComponent<CodeG
     private boolean updateCodeRadioButton;
     private boolean colaRadioButton;
     private boolean colaSingleRadioButton;
+    private boolean colaSingleMvpRadioButton;
     private boolean isInitProjectStructCheckBox;
     private String outPath;
 

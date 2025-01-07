@@ -18,7 +18,6 @@ import com.wk.paas.window.setting.AppDSLBuilder;
 import com.wk.paas.window.setting.BindAppInfoSettings;
 import com.wk.paas.window.setting.CodeGenerateConfiguration;
 import com.wk.paas.window.setting.LoginAccountInfoSettings;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
@@ -61,7 +60,6 @@ public class GenerateCodeService {
 
         String outputPathText = config.getOutPath();
         boolean isInitCode = config.isInitCodeRadioButton();
-        boolean isColaSingle = config.isColaSingleRadioButton();
         boolean isInitProjectStruct = config.isInitProjectStructCheckBox();
 
         // 重写应用信息
@@ -73,7 +71,7 @@ public class GenerateCodeService {
         GenerateOperationTypeEnum executeType = isInitCode ? GenerateOperationTypeEnum.INIT_CODE : GenerateOperationTypeEnum.UPDATE_CODE;
 
         // 项目架构
-        ProjectTemplateType projectType = isColaSingle ? ProjectTemplateType.COLA_SINGLE : ProjectTemplateType.COLA;
+        ProjectTemplateType projectType = getProjectTemplateType(config);
 
         // 实时解析DSL
         AppDSLBuilder appDSLBuilder = new AppDSLBuilder();
@@ -95,6 +93,18 @@ public class GenerateCodeService {
             Messages.showMessageDialog(e.getMessage(), "代码生成服务异常", Messages.getErrorIcon());
         } finally {
             VirtualFileManager.getInstance().syncRefresh();
+        }
+    }
+
+    private static ProjectTemplateType getProjectTemplateType(CodeGenerateConfiguration config) {
+        if (config.isColaRadioButton()) {
+            return ProjectTemplateType.COLA;
+        } else if (config.isColaSingleRadioButton()) {
+            return ProjectTemplateType.COLA_SINGLE;
+        } else if (config.isColaSingleMvpRadioButton()) {
+            return ProjectTemplateType.COLA_SINGLE_MVP;
+        } else {
+            throw new IllegalArgumentException("未知的项目架构类型");
         }
     }
 
